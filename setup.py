@@ -9,7 +9,7 @@ setup(
     url='http://pypi.python.org/pypi/TowelStuff/',
     license='LICENSE.txt',
     description='Passbook file generator.',
-    long_description=open('README.txt').read(),
+    long_description=open('README.md').read(),
     install_requires=[
         "M2Crypto >= 0.21.1",
     ],
