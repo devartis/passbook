@@ -7,16 +7,12 @@ from M2Crypto import SMIME
 
 class Pass :
     
-    certificate = '' # Holds the path to the certificate    
-    password = '' # Holds the password to the certificate    
     files = [] # Holds the files to include in the .pkpass    
     JSON = '' # Holds the json    
     SHAs = {} # Holds the SHAs of the files array
 
-    def __init__(self, certificate = '', password = '', JSON = ''):
+    def __init__(self, JSON = ''):
 
-        self.cert = certificate
-        self.password = password
         self.JSON = JSON
     
         
@@ -28,11 +24,12 @@ class Pass :
 
     
     # Creates the actual .pkpass file
-    def create(self):
+    def create(self, certificate, key, password):
 
         manifest = self.createManifest()
-        self.createSignature(manifest)
+        self.createSignature(manifest, certificate, key, password)
         self.createZip(manifest)
+        self.clean()
         
     
     # creates the hashes for the files and adds them into a json string.
@@ -49,15 +46,15 @@ class Pass :
     
     
     # Creates a signature and saves it
-    def createSignature(self, manifest):
+    def createSignature(self, manifest, certificate, key, password):
 
         open('manifest.json', 'w').write(manifest)        
 
         def passwordCallback(*args, **kwds):
-            return self.password
+            return password
 
         smime = SMIME.SMIME()
-        smime.load_key('key.pem', 'certificate.pem', callback=passwordCallback)        
+        smime.load_key(key, certificate, callback=passwordCallback)        
         pk7 = smime.sign(SMIME.BIO.MemoryBuffer(manifest), flags=SMIME.PKCS7_BINARY)                
         pem = SMIME.BIO.MemoryBuffer()
         pk7.write(pem)
@@ -71,10 +68,14 @@ class Pass :
     def createZip(self, manifest):
 
         # Package file in Zip (as .pkpass)
-        zf = zipfile.ZipFile('pass.pkpass', 'w'):
+        zf = zipfile.ZipFile('pass.pkpass', 'w')
         zf.write('signature', 'signature')
         zf.writestr('manifest.json', manifest)
         zf.writestr('pass.json', self.JSON)
         for filename in self.files:
             zf.write(filename, os.path.basename(filename))
         zf.close()
+        
+    def clean(self):
+        os.remove('signature')
+        os.remove('manifest.json')
