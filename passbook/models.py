@@ -71,9 +71,10 @@ class Pass :
     def createZip(self, manifest):
 
         # Package file in Zip (as .pkpass)
-        with zipfile.ZipFile('pass.pkpass', 'w') as zf:
-            zf.write('signature', 'signature')
-            zf.writestr('manifest.json', manifest)
-            zf.writestr('pass.json', self.JSON)
-            for filename in self.files:
-                zf.write(filename, os.path.basename(filename))
+        zf = zipfile.ZipFile('pass.pkpass', 'w'):
+        zf.write('signature', 'signature')
+        zf.writestr('manifest.json', manifest)
+        zf.writestr('pass.json', self.JSON)
+        for filename in self.files:
+            zf.write(filename, os.path.basename(filename))
+        zf.close()
