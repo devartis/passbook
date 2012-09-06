@@ -5,18 +5,18 @@ import base64
 import os.path
 from M2Crypto import SMIME
 
-class PKPass :
+class Pass :
     
-    certPath = '' # Holds the path to the certificate    
-    certPass = '' # Holds the password to the certificate    
+    certificate = '' # Holds the path to the certificate    
+    password = '' # Holds the password to the certificate    
     files = [] # Holds the files to include in the .pkpass    
     JSON = '' # Holds the json    
     SHAs = {} # Holds the SHAs of the files array
 
-    def __init__(self, certPath = '', certPass = '', JSON = ''):
+    def __init__(self, certificate = '', password = '', JSON = ''):
 
-        self.cert = certPath
-        self.certPass = certPass
+        self.cert = certificate
+        self.password = password
         self.JSON = JSON
     
         
@@ -54,7 +54,7 @@ class PKPass :
         open('manifest.json', 'w').write(manifest)        
 
         def passwordCallback(*args, **kwds):
-            return self.certPass
+            return self.password
 
         smime = SMIME.SMIME()
         smime.load_key('key.pem', 'certificate.pem', callback=passwordCallback)        
@@ -77,68 +77,3 @@ class PKPass :
             zf.writestr('pass.json', self.JSON)
             for filename in self.files:
                 zf.write(filename, os.path.basename(filename))
-    
-    
-def main():
-
-    pkfile = PKPass()
-    pkfile.certPath = 'Certificates.p12' # Set the path to your Pass Certificate (.p12 file)
-    pkfile.certPass = '123456' # Set password for certificate
-    pkfile.JSON = '{ \
-        "passTypeIdentifier": "pass.com.devartis.test", \
-        "formatVersion": 1, \
-        "organizationName": "devartis", \
-        "serialNumber": "123456", \
-        "teamIdentifier": "AGK5BZEN3E", \
-        "backgroundColor": "rgb(107,156,196)", \
-        "logoText": "devartis", \
-        "description": "Demo pass", \
-    	"boardingPass": { \
-            "primaryFields": [ \
-                { \
-                    "key" : "origin", \
-                	"label" : "Buenos Aires", \
-                	"value" : "EZE" \
-                }, \
-                { \
-                	"key" : "destination", \
-                	"label" : "Mar del plata", \
-                	"value" : "MDQ" \
-                } \
-            ], \
-            "secondaryFields": [ \
-                { \
-                    "key": "gate", \
-                    "label": "Gate", \
-                    "value": "F12" \
-                }, \
-                { \
-                    "key": "date", \
-                    "label": "Departure date", \
-                    "value": "08/11/2012 10:22" \
-                } \
-             ], \
-            "backFields": [ \
-                { \
-                    "key": "passenger-name", \
-                    "label": "Passenger", \
-                    "value": "Fernando Aramendi" \
-                } \
-            ], \
-            "transitType" : "PKTransitTypeAir" \
-        }, \
-        "barcode": { \
-            "format": "PKBarcodeFormatQR", \
-            "message": "Flight-GateF12-ID6643679AH7B", \
-            "messageEncoding": "iso-8859-1" \
-        } \
-    }'
-
-    # add files to the PKPass package
-    pkfile.addFile('images/icon.png')
-    pkfile.addFile('images/icon@2x.png')
-    pkfile.addFile('images/logo.png')
-    pkfile.create() # Create and output the PKPass
-
-if __name__ == "__main__":
-    main()

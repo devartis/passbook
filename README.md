@@ -8,14 +8,14 @@ Typical usage often looks like this::
 
     #!/usr/bin/env python
 
-    from passbook import PKPass
+    from passbook.models import Pass
 
-    pkfile = PKPass()
-    pkfile.certPath = 'Certificates.p12' # Path to your Pass Certificate (.p12 file)
-    pkfile.certPass = '******' # Password for certificate
-    pkfile.JSON = '{...}' # pass.json contents
-    pkfile.addFile('images/icon.png') # attached images
-    pkfile.create() # Create and output the PKPass
+    passfile = Pass()
+    passfile.certificate = 'Certificates.p12' # Path to your Pass Certificate (.p12 file)
+    passfile.password = '******' # Password for certificate
+    passfile.JSON = '{...}' # pass.json contents
+    passfile.addFile('images/icon.png') # attached images
+    passfile.create() # Create and output the Passbook file (.pkpass) 
 
 
 Creating Pass Certificates
