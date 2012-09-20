@@ -40,6 +40,14 @@ TO-DO:
 
 1. First
 
+iOS Provisioning Portal -> Pass Type IDs -> New Pass Type ID
+Select pass type id -> Configure (Follow steps and download generated pass.cer file)
+Use Keychain tool to export a p12 file (need Apple Root Certificate installed)
+
 2. Second. 
+
+openssl pkcs12 -in "Certificates.p12" -clcerts -nokeys -out certificate.pem 
+openssl pkcs12 -in "Certificates.p12" -nocerts -out key.pem 
+
 
 Developed by `devartis <http://www.devartis.com>`.
