@@ -25,7 +25,7 @@ class Barcode:
 
         self.format = format
         self.message = message
-        self.value = messageEncoding
+        self.messageEncoding = messageEncoding
 
     def json_dict(self):
         return self.__dict__
@@ -131,7 +131,6 @@ class Pass :
     def create(self, certificate, key, password):
 
         self._json = self.createPassJson()
-        print self._json
         manifest = self.createManifest()
         self.createSignature(manifest, certificate, key, password)
         self.createZip(manifest)
@@ -166,10 +165,12 @@ class Pass :
 
         smime = SMIME.SMIME()
         smime.load_key(key, certificate, callback=passwordCallback)        
-        pk7 = smime.sign(SMIME.BIO.MemoryBuffer(manifest), flags=SMIME.PKCS7_BINARY)                
+        pk7 = smime.sign(SMIME.BIO.MemoryBuffer(manifest), flags=SMIME.PKCS7_DETACHED | SMIME.PKCS7_BINARY)                
         pem = SMIME.BIO.MemoryBuffer()
         pk7.write(pem)
         # convert pem to der
+
+#        print pem.read()
         der = ''.join(l.strip() for l in pem.read().split('-----')[2].splitlines()).decode('base64')        
 
         open('signature', 'w').write(der)
