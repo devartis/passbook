@@ -25,6 +25,7 @@ Typical usage often looks like this::
     passfile.teamIdentifier = 'AGK5BZEN3E'
     passfile.backgroundColor = 'rgb(107,156,196)', 
     passfile.logoText = 'devartis', 
+    passfile.locations.append(Location(-34.602569, -58.436011))
     passfile.barcode = Barcode(message = 'Flight-GateF12-ID6643679AH7B')    
     
     passfile.addFile('images/icon.png')
@@ -35,8 +36,6 @@ Typical usage often looks like this::
 
 Creating Pass Certificates
 ==========================
-
-TO-DO:
 
 1. First
 

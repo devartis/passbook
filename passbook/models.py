@@ -243,6 +243,7 @@ class Pass :
                 'teamIdentifier': self.teamIdentifier,
                 'backgroundColor': self.backgroundColor,
                 'logoText': self.logoText,
+                'locations': self.locations,
                 'barcode': self.barcode.json_dict(),
                 self.passInformation.jsonname: self.passInformation.json_dict()
                }
