@@ -30,7 +30,7 @@ Typical usage often looks like this::
     passfile.addFile('images/icon.png')
     passfile.addFile('images/icon@2x.png')
     passfile.addFile('images/logo.png')
-    passfile.create('certificate.pem', 'key.pem', '123456') # Create and output the Passbook file (.pkpass) 
+    passfile.create('certificate.pem', 'key.pem', 'wwdr.pem', '123456') # Create and output the Passbook file (.pkpass) 
 
 
 Creating Pass Certificates
@@ -51,3 +51,10 @@ openssl pkcs12 -in "Certificates.p12" -nocerts -out key.pem
 
 
 Developed by `devartis <http://www.devartis.com>`.
+
+
+Getting WWDR Certificate
+==========================
+
+Certificate is available @ http://developer.apple.com/certificationauthority/AppleWWDRCA.cer
+It can be easily exported from KeyChain right to .pem
