@@ -5,6 +5,8 @@ import zipfile
 import base64
 import os.path
 from M2Crypto import SMIME
+from M2Crypto import X509
+from M2Crypto.X509 import X509_Stack
 
 
 class Field:
@@ -128,11 +130,11 @@ class Pass :
 
     
     # Creates the actual .pkpass file
-    def create(self, certificate, key, password):
+    def create(self, certificate, key, wwdr_certificate, password):
 
         self._json = self.createPassJson()
         manifest = self.createManifest()
-        self.createSignature(manifest, certificate, key, password)
+        self.createSignature(manifest, certificate, key, wwdr_certificate, password)
         self.createZip(manifest)
         self.clean()
         
@@ -156,7 +158,7 @@ class Pass :
     
     
     # Creates a signature and saves it
-    def createSignature(self, manifest, certificate, key, password):
+    def createSignature(self, manifest, certificate, key, wwdr_certificate, password):
 
         open('manifest.json', 'w').write(manifest)        
 
@@ -164,6 +166,12 @@ class Pass :
             return password
 
         smime = SMIME.SMIME()
+        #we need to attach wwdr cert as X509
+        wwdrcert = X509.load_cert(wwdr_certificate)
+        stack = X509_Stack()
+        stack.push(wwdrcert)
+        smime.set_x509_stack(stack)
+
         smime.load_key(key, certificate, callback=passwordCallback)        
         pk7 = smime.sign(SMIME.BIO.MemoryBuffer(manifest), flags=SMIME.PKCS7_DETACHED | SMIME.PKCS7_BINARY)                
         pem = SMIME.BIO.MemoryBuffer()
