@@ -27,8 +27,21 @@ class TransitType:
     BOAT = 'PKTransitTypeBoat'
     GENERIC = 'PKTransitTypeGeneric'
 
+class DateStyle:
+    NONE = 'PKDateStyleNone' 
+    SHORT = 'PKDateStyleShort' 
+    MEDIUM = 'PKDateStyleMedium' 
+    LONG = 'PKDateStyleLong' 
+    FULL = 'PKDateStyleFull' 
 
-class Field:
+class NumberStyle:
+    DECIMAL = 'PKNumberStyleDecimal'
+    PERCENT = 'PKNumberStylePercent'
+    SCIENTIFIC = 'PKNumberStyleScientific'
+    SPELLOUT = 'PKNumberStyleSpellOut'    
+
+
+class Field(object):
 
     def __init__(self, key, value, label = ''):
 
@@ -37,12 +50,33 @@ class Field:
         self.label = label # Optional. Label text for the field.
         self.changeMessage = '' # Optional. Format string for the alert text that is displayed when the pass is updated
         self.textAlignment = Alignment.LEFT
-        # TODO: Date Style Keys, Number Style Keys
 
     def json_dict(self):
         return self.__dict__
         
-        
+
+class DateField(Field):
+
+    def __init__(self, key, value, label = ''):
+        super(DateField, self).__init__(key, value, label)
+        self.dateStyle = DateStyle.SHORT # Style of date to display
+        self.timeStyle = DateStyle.SHORT # Style of time to display
+        self.isRelative = False # If true, the labels value is displayed as a relative date
+
+    def json_dict(self):
+        return self.__dict__
+
+
+class NumberField(Field):
+
+    def __init__(self, key, value, label = ''):
+        super(NumberField, self).__init__(key, value, label)
+        self.numberStyle = NumberStyle.DECIMAL # Style of date to display
+
+    def json_dict(self):
+        return self.__dict__
+
+
 class Barcode:
 
     def __init__(self, message):
@@ -90,9 +124,11 @@ class PassInformation(object):
         
     def json_dict(self):
         return {
+                'headerFields' : [f.json_dict() for f in self.headerFields],
                 'primaryFields' : [f.json_dict() for f in self.primaryFields],
                 'secondaryFields' : [f.json_dict() for f in self.secondaryFields],
                 'backFields' : [f.json_dict() for f in self.backFields],
+                'auxiliaryFields' : [f.json_dict() for f in self.auxiliaryFields],
                }
         
         
@@ -127,7 +163,6 @@ class Generic(PassInformation):
 
     def __init__(self):
         super(Generic, self).__init__()
-        super(Generic, self).__init__()
         self.jsonname = 'generic'
 
     
@@ -140,7 +175,7 @@ class StoreCard(PassInformation):
     
 class Pass :
     
-    def __init__(self, passInformation, json = ''):
+    def __init__(self, passInformation, json = '', passTypeIdentifier = '', organizationName = '', teamIdentifier = ''):
 
         self._json = json
         self._files = [] # Holds the files to include in the .pkpass    
@@ -148,12 +183,12 @@ class Pass :
         self._hashes = {} # Holds the SHAs of the files array        
         
         # Standard Keys
-        self.teamIdentifier = '' # Required. Team identifier of the organization that originated and signed the pass, as issued by Apple.
-        self.passTypeIdentifier = '' # Required. Pass type identifier, as issued by Apple. The value must correspond with your signing certificate. Used for grouping.       
+        self.teamIdentifier = teamIdentifier # Required. Team identifier of the organization that originated and signed the pass, as issued by Apple.
+        self.passTypeIdentifier = passTypeIdentifier # Required. Pass type identifier, as issued by Apple. The value must correspond with your signing certificate. Used for grouping.       
         self.serialNumber = '' # Required. Serial number that uniquely identifies the pass. 
         self.description = '' # Required. Brief description of the pass, used by the iOS accessibility technologies.   
         self.formatVersion = 1 # Required. Version of the file format. The value must be 1.
-        self.organizationName = '' # Required. Display name of the organization that originated and signed the pass.
+        self.organizationName = organizationName # Required. Display name of the organization that originated and signed the pass.
 
         # Visual Appearance Keys
         self.backgroundColor = 'rgb(255,255,255)' # Optional. Background color of the pass
@@ -161,7 +196,7 @@ class Pass :
         self.labelColor = 'rgb(0,0,0)' # Optional. Color of the label tex
         self.logoText = '' # Optional. Text displayed next to the logo
         self.barcode = None # Optional. Information specific to barcodes.
-        self.suppressStripShine = None # Optional. If true, the strip image is displayed
+        self.suppressStripShine = False # Optional. If true, the strip image is displayed
 
         # Web Service Keys
         self.webServiceURL = None
@@ -261,7 +296,10 @@ class Pass :
                 'serialNumber': self.serialNumber,
                 'teamIdentifier': self.teamIdentifier,
                 'backgroundColor': self.backgroundColor,
+                'foregroundColor': self.foregroundColor,
+                'labelColor': self.labelColor,
                 'logoText': self.logoText,
+                'suppressStripShine': self.suppressStripShine,
                 'locations': self.locations,
                 'barcode': self.barcode.json_dict(),
                 self.passInformation.jsonname: self.passInformation.json_dict()
