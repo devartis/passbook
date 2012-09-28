@@ -23,9 +23,9 @@ Typical usage often looks like this::
         teamIdentifier=teamIdentifier)
     passfile.serialNumber = '1234567' 
     passfile.barcode = Barcode(message = 'Barcode message')    
-    passfile.addFile('images/icon.png')
-    passfile.addFile('images/logo.png')
-    passfile.create('certificate.pem', 'key.pem', 'wwdr.pem', '123456') # Create and output the Passbook file (.pkpass) 
+    passfile.addFile('icon.png', open('images/icon.png', 'r'))
+    passfile.addFile('logo.png', open('images/logo.png', 'r'))
+    passfile.create('certificate.pem', 'key.pem', 'wwdr.pem', '123456', 'test.pkpass') # Create and output the Passbook file (.pkpass) 
 
 
 Creating Pass Certificates

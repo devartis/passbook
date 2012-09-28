@@ -1,9 +1,18 @@
-import json
-import simplejson
+#:coding=utf8:
+
+try:
+    import json
+except ImportError:
+    import simplejson as json
+
+try:
+    from cStringIO import StringIO
+except ImportError:
+    from StringIO import StringIO
+
 import hashlib
 import zipfile
-import base64
-import os.path
+import decimal
 from M2Crypto import SMIME
 from M2Crypto import X509
 from M2Crypto.X509 import X509_Stack
@@ -77,7 +86,7 @@ class NumberField(Field):
         return self.__dict__
 
 
-class Barcode:
+class Barcode(object):
 
     def __init__(self, message):
 
@@ -90,7 +99,7 @@ class Barcode:
         return self.__dict__
         
 
-class Location:
+class Location(object):
 
     def __init__(self, latitude, longitude):
 
@@ -120,16 +129,15 @@ class PassInformation(object):
 
     def addBackField(self, key, value, label):
         self.backFields.append(Field(key, value, label))
-
         
     def json_dict(self):
         return {
-                'headerFields' : [f.json_dict() for f in self.headerFields],
-                'primaryFields' : [f.json_dict() for f in self.primaryFields],
-                'secondaryFields' : [f.json_dict() for f in self.secondaryFields],
-                'backFields' : [f.json_dict() for f in self.backFields],
-                'auxiliaryFields' : [f.json_dict() for f in self.auxiliaryFields],
-               }
+            'headerFields' : [f.json_dict() for f in self.headerFields],
+            'primaryFields' : [f.json_dict() for f in self.primaryFields],
+            'secondaryFields' : [f.json_dict() for f in self.secondaryFields],
+            'backFields' : [f.json_dict() for f in self.backFields],
+            'auxiliaryFields' : [f.json_dict() for f in self.auxiliaryFields],
+        }
         
         
 class BoardingPass(PassInformation):
@@ -173,22 +181,20 @@ class StoreCard(PassInformation):
         self.jsonname = 'storeCard'
 
     
-class Pass :
+class Pass(object):
     
     def __init__(self, passInformation, json = '', passTypeIdentifier = '', organizationName = '', teamIdentifier = ''):
 
-        self._json = json
-        self._files = [] # Holds the files to include in the .pkpass    
-        self._json = '' # Holds the json    
+        self._files = {} # Holds the files to include in the .pkpass    
         self._hashes = {} # Holds the SHAs of the files array        
         
         # Standard Keys
         self.teamIdentifier = teamIdentifier # Required. Team identifier of the organization that originated and signed the pass, as issued by Apple.
         self.passTypeIdentifier = passTypeIdentifier # Required. Pass type identifier, as issued by Apple. The value must correspond with your signing certificate. Used for grouping.       
+        self.organizationName = organizationName # Required. Display name of the organization that originated and signed the pass.
         self.serialNumber = '' # Required. Serial number that uniquely identifies the pass. 
         self.description = '' # Required. Brief description of the pass, used by the iOS accessibility technologies.   
         self.formatVersion = 1 # Required. Version of the file format. The value must be 1.
-        self.organizationName = organizationName # Required. Display name of the organization that originated and signed the pass.
 
         # Visual Appearance Keys
         self.backgroundColor = 'rgb(255,255,255)' # Optional. Background color of the pass
@@ -206,48 +212,36 @@ class Pass :
         self.locations = [] # Optional. Locations where the pass is relevant. For example, the location of your store.
         self.relevantDate = None # Optional. Date and time when the pass becomes relevant
         
-        self.passInformation = passInformation        
+        self.passInformation = passInformation
         
         
     # Adds file to the file array
-    def addFile(self, path):
-
-        if os.path.exists(path):
-            self._files.append(path)
-
+    def addFile(self, name, fd):
+        self._files[name] = fd.read()
     
     # Creates the actual .pkpass file
-    def create(self, certificate, key, wwdr_certificate, password):
-
-        self._json = self.createPassJson()
-        manifest = self.createManifest()
-        self.createSignature(manifest, certificate, key, wwdr_certificate, password)
-        self.createZip(manifest)
-        self.clean()
-        
+    def create(self, certificate, key, wwdr_certificate, password, zip_file=None):
+        pass_json = self._createPassJson()
+        manifest = self._createManifest(pass_json)
+        signature = self._createSignature(manifest, certificate, key, wwdr_certificate, password)
+        if not zip_file:
+            zip_file = StringIO()
+        self.zip_file = self._createZip(pass_json, manifest, signature, zip_file=zip_file)
+        return zip_file
     
-    def createPassJson(self):
-
+    def _createPassJson(self):
         return json.dumps(self, default=PassHandler)
-
     
     # creates the hashes for the files and adds them into a json string.
-    def createManifest(self):
-
+    def _createManifest(self, pass_json):
         # Creates SHA hashes for all files in package
-        self._hashes['pass.json'] = hashlib.sha1(self._json).hexdigest()
-        for filename in self._files :
-            self._hashes[os.path.basename(filename)] = hashlib.sha1(open(filename).read()).hexdigest()        
-        manifest = json.dumps(self._hashes)
-        
-        return manifest
-    
+        self._hashes['pass.json'] = hashlib.sha1(pass_json).hexdigest()
+        for filename, filedata in self._files.items():
+            self._hashes[filename] = hashlib.sha1(filedata).hexdigest()
+        return json.dumps(self._hashes)
     
     # Creates a signature and saves it
-    def createSignature(self, manifest, certificate, key, wwdr_certificate, password):
-
-        open('manifest.json', 'w').write(manifest)        
-
+    def _createSignature(self, manifest, certificate, key, wwdr_certificate, password):
         def passwordCallback(*args, **kwds):
             return password
 
@@ -258,7 +252,7 @@ class Pass :
         stack.push(wwdrcert)
         smime.set_x509_stack(stack)
 
-        smime.load_key(key, certificate, callback=passwordCallback)        
+        smime.load_key(key, certificate, callback=passwordCallback)
         pk7 = smime.sign(SMIME.BIO.MemoryBuffer(manifest), flags=SMIME.PKCS7_DETACHED | SMIME.PKCS7_BINARY)                
 
         pem = SMIME.BIO.MemoryBuffer()
@@ -266,51 +260,43 @@ class Pass :
         # convert pem to der
         der = ''.join(l.strip() for l in pem.read().split('-----')[2].splitlines()).decode('base64')        
 
-        open('signature', 'w').write(der)
-        
+        return der
     
     # Creates .pkpass (zip archive)
-    def createZip(self, manifest):
-
-        # Package file in Zip (as .pkpass)
-        zf = zipfile.ZipFile('pass.pkpass', 'w')
-        zf.write('signature', 'signature')
+    def _createZip(self, pass_json, manifest, signature, zip_file=None):
+        zf = zipfile.ZipFile(zip_file or 'pass.pkpass', 'w')
+        zf.writestr('signature', signature)
         zf.writestr('manifest.json', manifest)
-        zf.writestr('pass.json', self._json)
-        for filename in self._files:
-            zf.write(filename, os.path.basename(filename))
+        zf.writestr('pass.json', pass_json)
+        for filename, filedata in self._files.items():
+            zf.writestr(filename, filedata)
         zf.close()
         
-        
-    def clean(self):
-        os.remove('signature')
-        os.remove('manifest.json')
-        
-
     def json_dict(self):
-
-        return {'description': self.description,
-                'formatVersion': self.formatVersion,
-                'organizationName': self.organizationName,
-                'passTypeIdentifier': self.passTypeIdentifier,
-                'serialNumber': self.serialNumber,
-                'teamIdentifier': self.teamIdentifier,
-                'backgroundColor': self.backgroundColor,
-                'foregroundColor': self.foregroundColor,
-                'labelColor': self.labelColor,
-                'logoText': self.logoText,
-                'suppressStripShine': self.suppressStripShine,
-                'locations': self.locations,
-                'barcode': self.barcode.json_dict(),
-                self.passInformation.jsonname: self.passInformation.json_dict()
-               }
+        return {
+            'description': self.description,
+            'formatVersion': self.formatVersion,
+            'organizationName': self.organizationName,
+            'passTypeIdentifier': self.passTypeIdentifier,
+            'serialNumber': self.serialNumber,
+            'teamIdentifier': self.teamIdentifier,
+            'backgroundColor': self.backgroundColor,
+            'foregroundColor': self.foregroundColor,
+            'labelColor': self.labelColor,
+            'logoText': self.logoText,
+            'suppressStripShine': self.suppressStripShine,
+            'locations': self.locations,
+            'barcode': self.barcode.json_dict(),
+            self.passInformation.jsonname: self.passInformation.json_dict()
+        }
 
 
 def PassHandler(obj):
-
     if hasattr(obj, 'json_dict'):
         return obj.json_dict()
     else:
-        raise TypeError, 'Object of type %s with value of %s is not JSON serializable' % (type(obj), repr(obj))
-
-        
+        # For Decimal latitude and logitude etc.
+        if isinstance(obj, decimal.Decimal):
+            return str(obj)
+        else:
+            return obj
