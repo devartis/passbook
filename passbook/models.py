@@ -8,16 +8,35 @@ from M2Crypto import SMIME
 from M2Crypto import X509
 from M2Crypto.X509 import X509_Stack
 
+class Alignment:
+    LEFT = 'PKTextAlignmentLeft'
+    CENTER = 'PKTextAlignmentCenter'
+    RIGHT = 'PKTextAlignmentRight'
+    JUSTIFIED = 'PKTextAlignmentJustified'
+    NATURAL = 'PKTextAlignment-Natural'
+
+class BarcodeFormat:
+    PDF417 = 'PKBarcodeFormatPDF417'
+    QR = 'PKBarcodeFormatQR'
+    AZTEC = 'PKBarcodeFormatAztec'
+
+class TransitType:
+    AIR = 'PKTransitTypeAir'
+    TRAIN = 'PKTransitTypeTrain'
+    BUS = 'PKTransitTypeBus'
+    BOAT = 'PKTransitTypeBoat'
+    GENERIC = 'PKTransitTypeGeneric'
+
 
 class Field:
 
     def __init__(self, key, value, label = ''):
 
-        self.key = key # Required. The key must be unique within the scope
-        self.label = label # Optional. Label text for the field.
+        self.key = key # Required. The key must be unique within the scope        
         self.value = value # Required. Value of the field. For example, 42
-        #self.changeMessage = None # Optional. Format string for the alert text that is displayed when the pass is updated
-        #self.textAlignment = None #PKTextAlignmentLeft,PKTextAlignmentCenter, PKTextAlignmentRight,PKTextAlignmentJustified, PKTextAlignment-Natural
+        self.label = label # Optional. Label text for the field.
+        self.changeMessage = '' # Optional. Format string for the alert text that is displayed when the pass is updated
+        self.textAlignment = Alignment.LEFT
         # TODO: Date Style Keys, Number Style Keys
 
     def json_dict(self):
@@ -28,10 +47,10 @@ class Barcode:
 
     def __init__(self, message):
 
-        self.format = 'PKBarcodeFormatPDF417' # PKBarcodeFormatQR, PKBarcodeFormatPDF417, PKBarcodeFormatAztec.
+        self.format = BarcodeFormat.PDF417
         self.message = message # Required. Message or payload to be displayed as a barcode
         self.messageEncoding = 'iso-8859-1' # Required. Text encoding that is used to convert the message
-        #self.altText = None # Optional. Text displayed near the barcode
+        self.altText = '' # Optional. Text displayed near the barcode
 
     def json_dict(self):
         return self.__dict__
@@ -41,10 +60,10 @@ class Location:
 
     def __init__(self, latitude, longitude):
 
-        #self.altitude = None # Optional. Altitude, in meters, of the location.
         self.latitude = latitude # Required. Latitude, in degrees, of the location.
         self.longitude = longitude # Required. Longitude, in degrees, of the location.
-        #self.relevantText = None # Optional. Text displayed on the lock screen when the pass is currently
+        self.altitude = 0 # Optional. Altitude, in meters, of the location.
+        self.relevantText = '' # Optional. Text displayed on the lock screen when the pass is currently
 
     def json_dict(self):
         return self.__dict__
@@ -79,9 +98,9 @@ class PassInformation(object):
         
 class BoardingPass(PassInformation):
 
-    def __init__(self, transitType = 'PKTransitTypeAir'):
+    def __init__(self, transitType = TransitType.AIR):
         super(BoardingPass, self).__init__()
-        self.transitType = transitType # PKTransitTypeAir, PKTransitTypeTrain, PKTransitTypeBus, PKTransitTypeBoat, PKTransitTypeGeneric.
+        self.transitType = transitType 
         self.jsonname = 'boardingPass'
 
     def json_dict(self):
