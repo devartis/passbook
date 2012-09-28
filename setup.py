@@ -2,7 +2,6 @@ from distutils.core import setup
 
 setup(
     name='Passbook',
-    packages=['passbook'],
     version='0.1.0',
     author='Fernando Aramendi',
     author_email='fernando@devartis.com',
