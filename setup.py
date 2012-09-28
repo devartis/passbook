@@ -6,7 +6,7 @@ setup(
     author='Fernando Aramendi',
     author_email='fernando@devartis.com',
     packages=['passbook', 'passbook.test'],
-    url='http://pypi.python.org/pypi/TowelStuff/',
+    url='http://github.com/devartis/passbook/',
     license='LICENSE.txt',
     description='Passbook file generator.',
     long_description=open('README.md').read(),
