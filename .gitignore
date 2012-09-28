@@ -1,6 +1,7 @@
 *.py[co]
 
 # Packages
+MANIFEST
 *.egg
 *.egg-info
 dist
