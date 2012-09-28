@@ -1,4 +1,4 @@
-VERSION = ('0', '1', '0', 'dev')
+VERSION = ('0', '1', '0dev')
 
 def get_version(*args, **kwargs):
     return '.'.join(VERSION)
