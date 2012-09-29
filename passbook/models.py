@@ -22,7 +22,7 @@ class Alignment:
     CENTER = 'PKTextAlignmentCenter'
     RIGHT = 'PKTextAlignmentRight'
     JUSTIFIED = 'PKTextAlignmentJustified'
-    NATURAL = 'PKTextAlignment-Natural'
+    NATURAL = 'PKTextAlignmentNatural'
 
 class BarcodeFormat:
     PDF417 = 'PKBarcodeFormatPDF417'
