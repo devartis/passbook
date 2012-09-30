@@ -212,6 +212,8 @@ class Pass(object):
         self.locations = [] # Optional. Locations where the pass is relevant. For example, the location of your store.
         self.relevantDate = None # Optional. Date and time when the pass becomes relevant
         
+        self.associatedStoreIdentifiers = []
+
         self.passInformation = passInformation
         
         
@@ -287,6 +289,10 @@ class Pass(object):
             'suppressStripShine': self.suppressStripShine,
             'locations': self.locations,
             'barcode': self.barcode.json_dict(),
+            'webServiceURL': self.webServiceURL,
+            'authenticationToken': self.authenticationToken,
+            'associatedStoreIdentifiers': self.associatedStoreIdentifiers,
+
             self.passInformation.jsonname: self.passInformation.json_dict()
         }
 
