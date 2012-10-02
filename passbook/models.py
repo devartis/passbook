@@ -275,7 +275,7 @@ class Pass(object):
         zf.close()
         
     def json_dict(self):
-        return {
+        d = {
             'description': self.description,
             'formatVersion': self.formatVersion,
             'organizationName': self.organizationName,
@@ -289,12 +289,13 @@ class Pass(object):
             'suppressStripShine': self.suppressStripShine,
             'locations': self.locations,
             'barcode': self.barcode.json_dict(),
-            'webServiceURL': self.webServiceURL,
-            'authenticationToken': self.authenticationToken,
             'associatedStoreIdentifiers': self.associatedStoreIdentifiers,
-
             self.passInformation.jsonname: self.passInformation.json_dict()
         }
+        if self.webServiceURL:
+            d.update({'webServiceURL': self.webServiceURL, 
+                      'authenticationToken': self.authenticationToken}) 
+        return d
 
 
 def PassHandler(obj):
