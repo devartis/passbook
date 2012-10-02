@@ -1,6 +1,6 @@
 from models import *
 
-VERSION = ('0', '2', '0dev')
+VERSION = ('0', '3', '0dev')
 
 def get_version(*args, **kwargs):
     return '.'.join(VERSION)
