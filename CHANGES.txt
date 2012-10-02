@@ -4,3 +4,5 @@ v0.1.0, 09/28/2012 -- First Released Version.
   Initial implementation of writing of .pkpass files
 
 v0.2.0, 10/01/2012 -- Bugfixes and json properties serialization
+
+v0.2.1, 10/02/2012 -- Bugfix
