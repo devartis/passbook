@@ -88,7 +88,7 @@ class NumberField(Field):
 
 class Barcode(object):
 
-    def __init__(self, format=BarcodeFormat.PDF417, message):
+    def __init__(self, message, format=BarcodeFormat.PDF417):
 
         self.format = format
         self.message = message # Required. Message or payload to be displayed as a barcode
