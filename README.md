@@ -5,7 +5,31 @@ Passbook
 
 Python library to read/write Apple Passbook (.pkpass) files
 
-Typical usage often looks like this::
+Getting Started
+==========================
+
+1. Get a Pass Type Id
+
+Visit the iOS Provisioning Portal -> Pass Type IDs -> New Pass Type ID
+Select pass type id -> Configure (Follow steps and download generated pass.cer file)
+Use Keychain tool to export a Certificates.p12 file (need Apple Root Certificate installed)
+
+2. Generate the necessary certificate and key .pem files
+
+```
+openssl pkcs12 -in "Certificates.p12" -clcerts -nokeys -out certificate.pem 
+openssl pkcs12 -in "Certificates.p12" -nocerts -out key.pem
+```
+
+3. Ensure you have M2Crypto installed
+
+```
+sudo easy_install M2Crypto
+```
+
+
+Typical Usage
+==========================
 
     #!/usr/bin/env python
 
@@ -29,26 +53,11 @@ Typical usage often looks like this::
     passfile.create('certificate.pem', 'key.pem', 'wwdr.pem', '123456', 'test.pkpass') # Create and output the Passbook file (.pkpass) 
 
 
-Creating Pass Certificates
-==========================
 
-1. First
-
-iOS Provisioning Portal -> Pass Type IDs -> New Pass Type ID
-Select pass type id -> Configure (Follow steps and download generated pass.cer file)
-Use Keychain tool to export a p12 file (need Apple Root Certificate installed)
-
-2. Second. 
-
-openssl pkcs12 -in "Certificates.p12" -clcerts -nokeys -out certificate.pem 
-openssl pkcs12 -in "Certificates.p12" -nocerts -out key.pem 
-
-
-Developed by `devartis <http://www.devartis.com>`.
-
-
-Getting WWDR Certificate
+Note: Getting WWDR Certificate
 ==========================
 
 Certificate is available @ http://developer.apple.com/certificationauthority/AppleWWDRCA.cer
-It can be easily exported from KeyChain right to .pem
+It can be exported from KeyChain into a .pem (e.g. wwdr.pem)
+
+Developed by `devartis <http://www.devartis.com>`.
