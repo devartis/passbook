@@ -3,7 +3,11 @@
 Passbook
 ========
 
-Python library to read/write Apple Passbook (.pkpass) files
+Python library to read/write [Apple Passbook](http://developer.apple.com/library/ios/#documentation/UserExperience/Conceptual/PassKit_PG/Chapters/Introduction.html#//apple_ref/doc/uid/TP40012195-CH1-SW1) (.pkpass) files
+
+
+
+
 
 Getting Started
 ==========================
