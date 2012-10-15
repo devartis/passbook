@@ -52,6 +52,8 @@ Typical Usage
         teamIdentifier=teamIdentifier)
     passfile.serialNumber = '1234567' 
     passfile.barcode = Barcode(message = 'Barcode message')    
+
+    # Including the icon and logo is necessary for the passbook to be valid.
     passfile.addFile('icon.png', open('images/icon.png', 'r'))
     passfile.addFile('logo.png', open('images/logo.png', 'r'))
     passfile.create('certificate.pem', 'key.pem', 'wwdr.pem', '123456', 'test.pkpass') # Create and output the Passbook file (.pkpass) 
