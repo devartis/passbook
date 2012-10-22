@@ -131,13 +131,18 @@ class PassInformation(object):
         self.backFields.append(Field(key, value, label))
         
     def json_dict(self):
-        return {
-            'headerFields' : [f.json_dict() for f in self.headerFields],
-            'primaryFields' : [f.json_dict() for f in self.primaryFields],
-            'secondaryFields' : [f.json_dict() for f in self.secondaryFields],
-            'backFields' : [f.json_dict() for f in self.backFields],
-            'auxiliaryFields' : [f.json_dict() for f in self.auxiliaryFields],
-        }
+        d = {}
+        if self.headerFields:
+            d.update({'headerFields' : [f.json_dict() for f in self.headerFields]})
+        if self.primaryFields:
+            d.update({'primaryFields' : [f.json_dict() for f in self.primaryFields]})
+        if self.secondaryFields:
+            d.update({'secondaryFields' : [f.json_dict() for f in self.secondaryFields]})
+        if self.backFields:
+            d.update({'backFields' : [f.json_dict() for f in self.backFields]})
+        if self.auxiliaryFields:
+            d.update({'auxiliaryFields' : [f.json_dict() for f in self.auxiliaryFields]})
+        return d
         
         
 class BoardingPass(PassInformation):
@@ -197,22 +202,22 @@ class Pass(object):
         self.formatVersion = 1 # Required. Version of the file format. The value must be 1.
 
         # Visual Appearance Keys
-        self.backgroundColor = 'rgb(255,255,255)' # Optional. Background color of the pass
-        self.foregroundColor = 'rgb(0,0,0)' # Optional. Foreground color of the pass,
-        self.labelColor = 'rgb(0,0,0)' # Optional. Color of the label tex
-        self.logoText = '' # Optional. Text displayed next to the logo
+        self.backgroundColor = None # Optional. Background color of the pass
+        self.foregroundColor = None # Optional. Foreground color of the pass,
+        self.labelColor = None # Optional. Color of the label text
+        self.logoText = None # Optional. Text displayed next to the logo
         self.barcode = None # Optional. Information specific to barcodes.
         self.suppressStripShine = False # Optional. If true, the strip image is displayed
 
         # Web Service Keys
-        self.webServiceURL = None
+        self.webServiceURL = None # Optional. If present, authenticationToken must be supplied
         self.authenticationToken = None # The authentication token to use with the web service
 
         # Relevance Keys
-        self.locations = [] # Optional. Locations where the pass is relevant. For example, the location of your store.
+        self.locations = None # Optional. Locations where the pass is relevant. For example, the location of your store.
         self.relevantDate = None # Optional. Date and time when the pass becomes relevant
         
-        self.associatedStoreIdentifiers = []
+        self.associatedStoreIdentifiers = None # Optional. A list of iTunes Store item identifiers for the associated apps.
 
         self.passInformation = passInformation
         
@@ -282,16 +287,22 @@ class Pass(object):
             'passTypeIdentifier': self.passTypeIdentifier,
             'serialNumber': self.serialNumber,
             'teamIdentifier': self.teamIdentifier,
-            'backgroundColor': self.backgroundColor,
-            'foregroundColor': self.foregroundColor,
-            'labelColor': self.labelColor,
-            'logoText': self.logoText,
             'suppressStripShine': self.suppressStripShine,
-            'locations': self.locations,
             'barcode': self.barcode.json_dict(),
-            'associatedStoreIdentifiers': self.associatedStoreIdentifiers,
             self.passInformation.jsonname: self.passInformation.json_dict()
         }
+        if self.backgroundColor:
+            d.update({'backgroundColor': self.backgroundColor})
+        if self.foregroundColor:
+            d.update({'foregroundColor': self.foregroundColor})
+        if self.labelColor:
+            d.update({'labelColor': self.labelColor})
+        if self.logoText:
+            d.update({'logoText': self.logoText})
+        if self.locations:
+            d.update({'locations': self.locations})
+        if self.associatedStoreIdentifiers:
+            d.update({'associatedStoreIdentifiers': self.associatedStoreIdentifiers})
         if self.webServiceURL:
             d.update({'webServiceURL': self.webServiceURL, 
                       'authenticationToken': self.authenticationToken}) 
