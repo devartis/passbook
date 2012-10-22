@@ -288,10 +288,12 @@ class Pass(object):
             'logoText': self.logoText,
             'suppressStripShine': self.suppressStripShine,
             'locations': self.locations,
-            'barcode': self.barcode.json_dict(),
             'associatedStoreIdentifiers': self.associatedStoreIdentifiers,
             self.passInformation.jsonname: self.passInformation.json_dict()
         }
+        # barcode is optional
+        if self.barcode:
+            d.update(self.barcode.json_dict())
         if self.webServiceURL:
             d.update({'webServiceURL': self.webServiceURL, 
                       'authenticationToken': self.authenticationToken}) 
