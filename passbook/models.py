@@ -292,6 +292,8 @@ class Pass(object):
             'associatedStoreIdentifiers': self.associatedStoreIdentifiers,
             self.passInformation.jsonname: self.passInformation.json_dict()
         }
+        if self.relevantDate:
+            d.update({'relevantDate': self.relevantDate})
         if self.webServiceURL:
             d.update({'webServiceURL': self.webServiceURL, 
                       'authenticationToken': self.authenticationToken}) 
