@@ -294,6 +294,8 @@ class Pass(object):
         # barcode is optional
         if self.barcode:
             d.update(self.barcode.json_dict())
+        if self.relevantDate:
+            d.update({'relevantDate': self.relevantDate})
         if self.webServiceURL:
             d.update({'webServiceURL': self.webServiceURL, 
                       'authenticationToken': self.authenticationToken}) 
