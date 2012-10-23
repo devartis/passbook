@@ -288,12 +288,20 @@ class Pass(object):
             'serialNumber': self.serialNumber,
             'teamIdentifier': self.teamIdentifier,
             'suppressStripShine': self.suppressStripShine,
+<<<<<<< HEAD
+            'locations': self.locations,
+            'associatedStoreIdentifiers': self.associatedStoreIdentifiers,
             self.passInformation.jsonname: self.passInformation.json_dict()
         }
+        # barcode is optional
         if self.barcode:
             d.update(self.barcode.json_dict())
         if self.relevantDate:
             d.update({'relevantDate': self.relevantDate})
+=======
+            'barcode': self.barcode.json_dict(),
+            self.passInformation.jsonname: self.passInformation.json_dict()
+        }
         if self.backgroundColor:
             d.update({'backgroundColor': self.backgroundColor})
         if self.foregroundColor:
@@ -306,6 +314,7 @@ class Pass(object):
             d.update({'locations': self.locations})
         if self.associatedStoreIdentifiers:
             d.update({'associatedStoreIdentifiers': self.associatedStoreIdentifiers})
+>>>>>>> 4df3df6094a919ae30d2fdc18bcf169f30d3c621
         if self.webServiceURL:
             d.update({'webServiceURL': self.webServiceURL, 
                       'authenticationToken': self.authenticationToken}) 
