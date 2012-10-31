@@ -6,3 +6,5 @@ v0.1.0, 09/28/2012 -- First Released Version.
 v0.2.0, 10/01/2012 -- Bugfixes and json properties serialization
 
 v0.2.1, 10/02/2012 -- Bugfix
+
+v0.2.3, 10/31/2012 -- Better handling of Passbook's optional parameters. Improved documentation.
