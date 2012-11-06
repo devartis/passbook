@@ -253,13 +253,14 @@ class Pass(object):
             return password
 
         smime = SMIME.SMIME()
-        #we need to attach wwdr cert as X509
+        # we need to attach wwdr cert as X509
         wwdrcert = X509.load_cert(wwdr_certificate)
         stack = X509_Stack()
         stack.push(wwdrcert)
         smime.set_x509_stack(stack)
 
-        smime.load_key(key, certificate, callback=passwordCallback)
+        # need to cast to string since load_key doesnt work with unicode paths
+        smime.load_key(str(key), certificate, callback=passwordCallback)
         pk7 = smime.sign(SMIME.BIO.MemoryBuffer(manifest), flags=SMIME.PKCS7_DETACHED | SMIME.PKCS7_BINARY)                
 
         pem = SMIME.BIO.MemoryBuffer()
