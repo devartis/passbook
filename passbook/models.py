@@ -292,7 +292,7 @@ class Pass(object):
             self.passInformation.jsonname: self.passInformation.json_dict()
         }
         if self.barcode:
-            d.update(self.barcode.json_dict())
+            d.update({'barcode': self.barcode.json_dict()})
         if self.relevantDate:
             d.update({'relevantDate': self.relevantDate})
         if self.backgroundColor:
