@@ -5,6 +5,9 @@ Passbook
 
 Python library to read/write [Apple Passbook](http://developer.apple.com/library/ios/#documentation/UserExperience/Conceptual/PassKit_PG/Chapters/Introduction.html#//apple_ref/doc/uid/TP40012195-CH1-SW1) (.pkpass) files
 
+> If you need the server side implementation (API / WebServices) in django you should check http.//github.com/devartis/django-passbook.
+
+
 Getting Started
 ==========================
 
