@@ -5,10 +5,6 @@ Passbook
 
 Python library to read/write [Apple Passbook](http://developer.apple.com/library/ios/#documentation/UserExperience/Conceptual/PassKit_PG/Chapters/Introduction.html#//apple_ref/doc/uid/TP40012195-CH1-SW1) (.pkpass) files
 
-
-
-
-
 Getting Started
 ==========================
 
@@ -30,7 +26,6 @@ openssl pkcs12 -in "Certificates.p12" -nocerts -out key.pem
 ```
 sudo easy_install M2Crypto
 ```
-
 
 Typical Usage
 ==========================
@@ -57,8 +52,6 @@ Typical Usage
     passfile.addFile('icon.png', open('images/icon.png', 'r'))
     passfile.addFile('logo.png', open('images/logo.png', 'r'))
     passfile.create('certificate.pem', 'key.pem', 'wwdr.pem', '123456', 'test.pkpass') # Create and output the Passbook file (.pkpass) 
-
-
 
 Note: Getting WWDR Certificate
 ==========================
