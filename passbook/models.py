@@ -17,6 +17,7 @@ from M2Crypto import SMIME
 from M2Crypto import X509
 from M2Crypto.X509 import X509_Stack
 
+
 class Alignment:
     LEFT = 'PKTextAlignmentLeft'
     CENTER = 'PKTextAlignmentCenter'
@@ -24,10 +25,12 @@ class Alignment:
     JUSTIFIED = 'PKTextAlignmentJustified'
     NATURAL = 'PKTextAlignmentNatural'
 
+
 class BarcodeFormat:
     PDF417 = 'PKBarcodeFormatPDF417'
     QR = 'PKBarcodeFormatQR'
     AZTEC = 'PKBarcodeFormatAztec'
+
 
 class TransitType:
     AIR = 'PKTransitTypeAir'
@@ -36,41 +39,43 @@ class TransitType:
     BOAT = 'PKTransitTypeBoat'
     GENERIC = 'PKTransitTypeGeneric'
 
+
 class DateStyle:
-    NONE = 'PKDateStyleNone' 
-    SHORT = 'PKDateStyleShort' 
-    MEDIUM = 'PKDateStyleMedium' 
-    LONG = 'PKDateStyleLong' 
-    FULL = 'PKDateStyleFull' 
+    NONE = 'PKDateStyleNone'
+    SHORT = 'PKDateStyleShort'
+    MEDIUM = 'PKDateStyleMedium'
+    LONG = 'PKDateStyleLong'
+    FULL = 'PKDateStyleFull'
+
 
 class NumberStyle:
     DECIMAL = 'PKNumberStyleDecimal'
     PERCENT = 'PKNumberStylePercent'
     SCIENTIFIC = 'PKNumberStyleScientific'
-    SPELLOUT = 'PKNumberStyleSpellOut'    
+    SPELLOUT = 'PKNumberStyleSpellOut'
 
 
 class Field(object):
 
-    def __init__(self, key, value, label = ''):
+    def __init__(self, key, value, label=''):
 
-        self.key = key # Required. The key must be unique within the scope        
-        self.value = value # Required. Value of the field. For example, 42
-        self.label = label # Optional. Label text for the field.
-        self.changeMessage = '' # Optional. Format string for the alert text that is displayed when the pass is updated
+        self.key = key  # Required. The key must be unique within the scope
+        self.value = value  # Required. Value of the field. For example, 42
+        self.label = label  # Optional. Label text for the field.
+        self.changeMessage = ''  # Optional. Format string for the alert text that is displayed when the pass is updated
         self.textAlignment = Alignment.LEFT
 
     def json_dict(self):
         return self.__dict__
-        
+
 
 class DateField(Field):
 
-    def __init__(self, key, value, label = ''):
+    def __init__(self, key, value, label=''):
         super(DateField, self).__init__(key, value, label)
-        self.dateStyle = DateStyle.SHORT # Style of date to display
-        self.timeStyle = DateStyle.SHORT # Style of time to display
-        self.isRelative = False # If true, the labels value is displayed as a relative date
+        self.dateStyle = DateStyle.SHORT  # Style of date to display
+        self.timeStyle = DateStyle.SHORT  # Style of time to display
+        self.isRelative = False  # If true, the labels value is displayed as a relative date
 
     def json_dict(self):
         return self.__dict__
@@ -78,9 +83,9 @@ class DateField(Field):
 
 class NumberField(Field):
 
-    def __init__(self, key, value, label = ''):
+    def __init__(self, key, value, label='', numberStyle=NumberStyle.DECIMAL):
         super(NumberField, self).__init__(key, value, label)
-        self.numberStyle = NumberStyle.DECIMAL # Style of date to display
+        self.numberStyle = numberStyle  # Style of date to display
 
     def json_dict(self):
         return self.__dict__
@@ -91,29 +96,29 @@ class Barcode(object):
     def __init__(self, message, format=BarcodeFormat.PDF417):
 
         self.format = format
-        self.message = message # Required. Message or payload to be displayed as a barcode
-        self.messageEncoding = 'iso-8859-1' # Required. Text encoding that is used to convert the message
-        self.altText = '' # Optional. Text displayed near the barcode
+        self.message = message  # Required. Message or payload to be displayed as a barcode
+        self.messageEncoding = 'iso-8859-1'  # Required. Text encoding that is used to convert the message
+        self.altText = ''  # Optional. Text displayed near the barcode
 
     def json_dict(self):
         return self.__dict__
-        
+
 
 class Location(object):
 
     def __init__(self, latitude, longitude):
 
-        self.latitude = latitude # Required. Latitude, in degrees, of the location.
-        self.longitude = longitude # Required. Longitude, in degrees, of the location.
-        self.altitude = 0 # Optional. Altitude, in meters, of the location.
-        self.relevantText = '' # Optional. Text displayed on the lock screen when the pass is currently
+        self.latitude = latitude  # Required. Latitude, in degrees, of the location.
+        self.longitude = longitude  # Required. Longitude, in degrees, of the location.
+        self.altitude = 0  # Optional. Altitude, in meters, of the location.
+        self.relevantText = ''  # Optional. Text displayed on the lock screen when the pass is currently
 
     def json_dict(self):
         return self.__dict__
 
 
 class PassInformation(object):
-    
+
     def __init__(self):
         self.headerFields = []
         self.primaryFields = []
@@ -129,103 +134,102 @@ class PassInformation(object):
 
     def addBackField(self, key, value, label):
         self.backFields.append(Field(key, value, label))
-        
+
     def json_dict(self):
         d = {}
         if self.headerFields:
-            d.update({'headerFields' : [f.json_dict() for f in self.headerFields]})
+            d.update({'headerFields': [f.json_dict() for f in self.headerFields]})
         if self.primaryFields:
-            d.update({'primaryFields' : [f.json_dict() for f in self.primaryFields]})
+            d.update({'primaryFields': [f.json_dict() for f in self.primaryFields]})
         if self.secondaryFields:
-            d.update({'secondaryFields' : [f.json_dict() for f in self.secondaryFields]})
+            d.update({'secondaryFields': [f.json_dict() for f in self.secondaryFields]})
         if self.backFields:
-            d.update({'backFields' : [f.json_dict() for f in self.backFields]})
+            d.update({'backFields': [f.json_dict() for f in self.backFields]})
         if self.auxiliaryFields:
-            d.update({'auxiliaryFields' : [f.json_dict() for f in self.auxiliaryFields]})
+            d.update({'auxiliaryFields': [f.json_dict() for f in self.auxiliaryFields]})
         return d
-        
-        
+
+
 class BoardingPass(PassInformation):
 
-    def __init__(self, transitType = TransitType.AIR):
+    def __init__(self, transitType=TransitType.AIR):
         super(BoardingPass, self).__init__()
-        self.transitType = transitType 
+        self.transitType = transitType
         self.jsonname = 'boardingPass'
 
     def json_dict(self):
         d = super(BoardingPass, self).json_dict()
         d.update({'transitType': self.transitType})
         return d
-        
-        
+
+
 class Coupon(PassInformation):
 
     def __init__(self):
         super(Coupon, self).__init__()
         self.jsonname = 'coupon'
 
-    
+
 class EventTicket(PassInformation):
 
     def __init__(self):
         super(EventTicket, self).__init__()
         self.jsonname = 'eventTicket'
 
-    
+
 class Generic(PassInformation):
 
     def __init__(self):
         super(Generic, self).__init__()
         self.jsonname = 'generic'
 
-    
+
 class StoreCard(PassInformation):
 
     def __init__(self):
         super(StoreCard, self).__init__()
         self.jsonname = 'storeCard'
 
-    
-class Pass(object):
-    
-    def __init__(self, passInformation, json = '', passTypeIdentifier = '', organizationName = '', teamIdentifier = ''):
 
-        self._files = {} # Holds the files to include in the .pkpass    
-        self._hashes = {} # Holds the SHAs of the files array        
-        
-        # Standard Keys
-        self.teamIdentifier = teamIdentifier # Required. Team identifier of the organization that originated and signed the pass, as issued by Apple.
-        self.passTypeIdentifier = passTypeIdentifier # Required. Pass type identifier, as issued by Apple. The value must correspond with your signing certificate. Used for grouping.       
-        self.organizationName = organizationName # Required. Display name of the organization that originated and signed the pass.
-        self.serialNumber = '' # Required. Serial number that uniquely identifies the pass. 
-        self.description = '' # Required. Brief description of the pass, used by the iOS accessibility technologies.   
-        self.formatVersion = 1 # Required. Version of the file format. The value must be 1.
+class Pass(object):
+
+    def __init__(self, passInformation, json='', passTypeIdentifier='', organizationName='', teamIdentifier=''):
+
+        self._files = {}  # Holds the files to include in the .pkpass
+        self._hashes = {}  # Holds the SHAs of the files array
+
+         # Standard Keys
+        self.teamIdentifier = teamIdentifier  # Required. Team identifier of the organization that originated and signed the pass, as issued by Apple.
+        self.passTypeIdentifier = passTypeIdentifier  # Required. Pass type identifier, as issued by Apple. The value must correspond with your signing certificate. Used for grouping.
+        self.organizationName = organizationName  # Required. Display name of the organization that originated and signed the pass.
+        self.serialNumber = '' # Required. Serial number that uniquely identifies the pass.
+        self.description = ''  # Required. Brief description of the pass, used by the iOS accessibility technologies.
+        self.formatVersion = 1  # Required. Version of the file format. The value must be 1.
 
         # Visual Appearance Keys
-        self.backgroundColor = None # Optional. Background color of the pass
-        self.foregroundColor = None # Optional. Foreground color of the pass,
-        self.labelColor = None # Optional. Color of the label text
-        self.logoText = None # Optional. Text displayed next to the logo
-        self.barcode = None # Optional. Information specific to barcodes.
-        self.suppressStripShine = False # Optional. If true, the strip image is displayed
+        self.backgroundColor = None  # Optional. Background color of the pass
+        self.foregroundColor = None  # Optional. Foreground color of the pass,
+        self.labelColor = None  # Optional. Color of the label text
+        self.logoText = None  # Optional. Text displayed next to the logo
+        self.barcode = None  # Optional. Information specific to barcodes.
+        self.suppressStripShine = False  # Optional. If true, the strip image is displayed
 
         # Web Service Keys
-        self.webServiceURL = None # Optional. If present, authenticationToken must be supplied
-        self.authenticationToken = None # The authentication token to use with the web service
+        self.webServiceURL = None  # Optional. If present, authenticationToken must be supplied
+        self.authenticationToken = None  # The authentication token to use with the web service
 
         # Relevance Keys
-        self.locations = None # Optional. Locations where the pass is relevant. For example, the location of your store.
-        self.relevantDate = None # Optional. Date and time when the pass becomes relevant
-        
-        self.associatedStoreIdentifiers = None # Optional. A list of iTunes Store item identifiers for the associated apps.
+        self.locations = None  # Optional. Locations where the pass is relevant. For example, the location of your store.
+        self.relevantDate = None  # Optional. Date and time when the pass becomes relevant
+
+        self.associatedStoreIdentifiers = None  # Optional. A list of iTunes Store item identifiers for the associated apps.
 
         self.passInformation = passInformation
-        
-        
+
     # Adds file to the file array
     def addFile(self, name, fd):
         self._files[name] = fd.read()
-    
+
     # Creates the actual .pkpass file
     def create(self, certificate, key, wwdr_certificate, password, zip_file=None):
         pass_json = self._createPassJson()
@@ -235,10 +239,10 @@ class Pass(object):
             zip_file = StringIO()
         self.zip_file = self._createZip(pass_json, manifest, signature, zip_file=zip_file)
         return zip_file
-    
+
     def _createPassJson(self):
         return json.dumps(self, default=PassHandler)
-    
+
     # creates the hashes for the files and adds them into a json string.
     def _createManifest(self, pass_json):
         # Creates SHA hashes for all files in package
@@ -246,7 +250,7 @@ class Pass(object):
         for filename, filedata in self._files.items():
             self._hashes[filename] = hashlib.sha1(filedata).hexdigest()
         return json.dumps(self._hashes)
-    
+
     # Creates a signature and saves it
     def _createSignature(self, manifest, certificate, key, wwdr_certificate, password):
         def passwordCallback(*args, **kwds):
@@ -261,15 +265,15 @@ class Pass(object):
 
         # need to cast to string since load_key doesnt work with unicode paths
         smime.load_key(str(key), certificate, callback=passwordCallback)
-        pk7 = smime.sign(SMIME.BIO.MemoryBuffer(manifest), flags=SMIME.PKCS7_DETACHED | SMIME.PKCS7_BINARY)                
+        pk7 = smime.sign(SMIME.BIO.MemoryBuffer(manifest), flags=SMIME.PKCS7_DETACHED | SMIME.PKCS7_BINARY)
 
         pem = SMIME.BIO.MemoryBuffer()
         pk7.write(pem)
         # convert pem to der
-        der = ''.join(l.strip() for l in pem.read().split('-----')[2].splitlines()).decode('base64')        
+        der = ''.join(l.strip() for l in pem.read().split('-----')[2].splitlines()).decode('base64')
 
         return der
-    
+
     # Creates .pkpass (zip archive)
     def _createZip(self, pass_json, manifest, signature, zip_file=None):
         zf = zipfile.ZipFile(zip_file or 'pass.pkpass', 'w')
@@ -279,7 +283,7 @@ class Pass(object):
         for filename, filedata in self._files.items():
             zf.writestr(filename, filedata)
         zf.close()
-        
+
     def json_dict(self):
         d = {
             'description': self.description,
@@ -308,8 +312,8 @@ class Pass(object):
         if self.associatedStoreIdentifiers:
             d.update({'associatedStoreIdentifiers': self.associatedStoreIdentifiers})
         if self.webServiceURL:
-            d.update({'webServiceURL': self.webServiceURL, 
-                      'authenticationToken': self.authenticationToken}) 
+            d.update({'webServiceURL': self.webServiceURL,
+                      'authenticationToken': self.authenticationToken})
         return d
 
 
