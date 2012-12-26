@@ -83,9 +83,19 @@ class DateField(Field):
 
 class NumberField(Field):
 
-    def __init__(self, key, value, label='', numberStyle=NumberStyle.DECIMAL):
+    def __init__(self, key, value, label=''):
         super(NumberField, self).__init__(key, value, label)
-        self.numberStyle = numberStyle  # Style of date to display
+        self.numberStyle = NumberStyle.DECIMAL  # Style of date to display
+
+    def json_dict(self):
+        return self.__dict__
+
+
+class CurrencyField(NumberField):
+
+    def __init__(self, key, value, label='', currencyCode=''):
+        super(CurrencyField, self).__init__(key, value, label)
+        self.currencyCode = currencyCode  # ISO 4217 currency code
 
     def json_dict(self):
         return self.__dict__
@@ -126,6 +136,9 @@ class PassInformation(object):
         self.backFields = []
         self.auxiliaryFields = []
 
+    def addHeaderField(self, key, value, label):
+        self.headerFields.append(Field(key, value, label))
+
     def addPrimaryField(self, key, value, label):
         self.primaryFields.append(Field(key, value, label))
 
@@ -134,6 +147,9 @@ class PassInformation(object):
 
     def addBackField(self, key, value, label):
         self.backFields.append(Field(key, value, label))
+
+    def addAuxiliaryField(self, key, value, label):
+        self.auxiliaryFields.append(Field(key, value, label))
 
     def json_dict(self):
         d = {}
@@ -202,7 +218,7 @@ class Pass(object):
         self.teamIdentifier = teamIdentifier  # Required. Team identifier of the organization that originated and signed the pass, as issued by Apple.
         self.passTypeIdentifier = passTypeIdentifier  # Required. Pass type identifier, as issued by Apple. The value must correspond with your signing certificate. Used for grouping.
         self.organizationName = organizationName  # Required. Display name of the organization that originated and signed the pass.
-        self.serialNumber = '' # Required. Serial number that uniquely identifies the pass.
+        self.serialNumber = ''  # Required. Serial number that uniquely identifies the pass.
         self.description = ''  # Required. Brief description of the pass, used by the iOS accessibility technologies.
         self.formatVersion = 1  # Required. Version of the file format. The value must be 1.
 
