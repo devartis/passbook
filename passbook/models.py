@@ -253,7 +253,7 @@ class Pass(object):
         signature = self._createSignature(manifest, certificate, key, wwdr_certificate, password)
         if not zip_file:
             zip_file = StringIO()
-        self.zip_file = self._createZip(pass_json, manifest, signature, zip_file=zip_file)
+        self._createZip(pass_json, manifest, signature, zip_file=zip_file)
         return zip_file
 
     def _createPassJson(self):
