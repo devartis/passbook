@@ -13,6 +13,7 @@ except ImportError:
 import hashlib
 import zipfile
 import decimal
+
 from M2Crypto import SMIME
 from M2Crypto import X509
 from M2Crypto.X509 import X509_Stack
@@ -117,11 +118,17 @@ class Barcode(object):
 class Location(object):
 
     def __init__(self, latitude, longitude):
-
-        self.latitude = latitude  # Required. Latitude, in degrees, of the location.
-        self.longitude = longitude  # Required. Longitude, in degrees, of the location.
-        self.altitude = 0  # Optional. Altitude, in meters, of the location.
-        self.relevantText = ''  # Optional. Text displayed on the lock screen when the pass is currently
+        # Required. Latitude, in degrees, of the location.
+        self.latitude = latitude
+        # Required. Longitude, in degrees, of the location.
+        self.longitude = longitude
+        # Optional. Altitude, in meters, of the location.
+        self.altitude = 0
+        # Optional. Notification distance
+        self.distance = None
+        # Optional. Text displayed on the lock screen when
+        # the pass is currently near the location
+        self.relevantText = ''
 
     def json_dict(self):
         return self.__dict__
