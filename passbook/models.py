@@ -117,13 +117,22 @@ class Barcode(object):
 
 class Location(object):
 
-    def __init__(self, latitude, longitude):
+    def __init__(self, latitude, longitude, altitude=0.0):
         # Required. Latitude, in degrees, of the location.
-        self.latitude = latitude
+        try:
+            self.latitude = float(latitude)
+        except (ValueError, TypeError):
+            self.latitude = 0.0
         # Required. Longitude, in degrees, of the location.
-        self.longitude = longitude
+        try:
+            self.longitude = float(longitude)
+        except (ValueError, TypeError):
+            self.longitude = 0.0
         # Optional. Altitude, in meters, of the location.
-        self.altitude = 0
+        try:
+            self.altitude = float(altitude)
+        except (ValueError, TypeError):
+            self.altitude = 0.0
         # Optional. Notification distance
         self.distance = None
         # Optional. Text displayed on the lock screen when
