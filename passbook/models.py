@@ -286,6 +286,8 @@ class Pass(object):
         # Optional. A list of iTunes Store item identifiers for
         # the associated apps.
         self.associatedStoreIdentifiers = None
+        # Optional. Additional hidden data in json for the passbook
+        self.userInfo = None
 
         self.passInformation = passInformation
 
@@ -315,7 +317,8 @@ class Pass(object):
         return json.dumps(self._hashes)
 
     # Creates a signature and saves it
-    def _createSignature(self, manifest, certificate, key, wwdr_certificate, password):
+    def _createSignature(self, manifest, certificate, key,
+                         wwdr_certificate, password):
         def passwordCallback(*args, **kwds):
             return password
 
@@ -372,8 +375,14 @@ class Pass(object):
             d.update({'logoText': self.logoText})
         if self.locations:
             d.update({'locations': self.locations})
+        if self.ibeacons:
+            d.update({'ibeacons': self.ibeacons})
+        if self.userInfo:
+            d.update({'userInfo': self.userInfo})
         if self.associatedStoreIdentifiers:
-            d.update({'associatedStoreIdentifiers': self.associatedStoreIdentifiers})
+            d.update(
+                {'associatedStoreIdentifiers': self.associatedStoreIdentifiers}
+            )
         if self.webServiceURL:
             d.update({'webServiceURL': self.webServiceURL,
                       'authenticationToken': self.authenticationToken})
