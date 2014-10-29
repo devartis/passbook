@@ -144,9 +144,7 @@ class Location(object):
 
 
 class IBeacon(object):
-    def __init__(self, name, proximityuuid, major, minor):
-        self.name = name
-
+    def __init__(self, proximityuuid, major, minor):
         # IBeacon data
         self.proximityUUID = proximityuuid
         self.major = major
@@ -385,7 +383,7 @@ class Pass(object):
         if self.locations:
             d.update({'locations': self.locations})
         if self.ibeacons:
-            d.update({'ibeacons': self.ibeacons})
+            d.update({'beacons': self.ibeacons})
         if self.userInfo:
             d.update({'userInfo': self.userInfo})
         if self.associatedStoreIdentifiers:
