@@ -134,6 +134,22 @@ class Location(object):
         return self.__dict__
 
 
+class IBeacon(object):
+    def __init__(self, name, proximityuuid, major, minor):
+        self.name = name
+
+        # IBeacon data
+        self.proximityUUID = proximityuuid
+        self.major = major
+        self.minor = minor
+
+        # Optional. Text message where near the ibeacon
+        self.relevantText = ''
+
+    def json_dict(self):
+        return self.__dict__
+
+
 class PassInformation(object):
 
     def __init__(self):
@@ -216,18 +232,30 @@ class StoreCard(PassInformation):
 
 class Pass(object):
 
-    def __init__(self, passInformation, json='', passTypeIdentifier='', organizationName='', teamIdentifier=''):
+    def __init__(self, passInformation, json='', passTypeIdentifier='',
+                 organizationName='', teamIdentifier=''):
 
         self._files = {}  # Holds the files to include in the .pkpass
         self._hashes = {}  # Holds the SHAs of the files array
 
-         # Standard Keys
-        self.teamIdentifier = teamIdentifier  # Required. Team identifier of the organization that originated and signed the pass, as issued by Apple.
-        self.passTypeIdentifier = passTypeIdentifier  # Required. Pass type identifier, as issued by Apple. The value must correspond with your signing certificate. Used for grouping.
-        self.organizationName = organizationName  # Required. Display name of the organization that originated and signed the pass.
-        self.serialNumber = ''  # Required. Serial number that uniquely identifies the pass.
-        self.description = ''  # Required. Brief description of the pass, used by the iOS accessibility technologies.
-        self.formatVersion = 1  # Required. Version of the file format. The value must be 1.
+        # Standard Keys
+
+        # Required. Team identifier of the organization that originated and
+        # signed the pass, as issued by Apple.
+        self.teamIdentifier = teamIdentifier
+        # Required. Pass type identifier, as issued by Apple. The value must
+        # correspond with your signing certificate. Used for grouping.
+        self.passTypeIdentifier = passTypeIdentifier
+        # Required. Display name of the organization that originated and
+        # signed the pass.
+        self.organizationName = organizationName
+        # Required. Serial number that uniquely identifies the pass.
+        self.serialNumber = ''
+        # Required. Brief description of the pass, used by the iOS
+        # accessibility technologies.
+        self.description = ''
+        # Required. Version of the file format. The value must be 1.
+        self.formatVersion = 1
 
         # Visual Appearance Keys
         self.backgroundColor = None  # Optional. Background color of the pass
@@ -235,17 +263,29 @@ class Pass(object):
         self.labelColor = None  # Optional. Color of the label text
         self.logoText = None  # Optional. Text displayed next to the logo
         self.barcode = None  # Optional. Information specific to barcodes.
-        self.suppressStripShine = False  # Optional. If true, the strip image is displayed
+        # Optional. If true, the strip image is displayed
+        self.suppressStripShine = False
 
         # Web Service Keys
-        self.webServiceURL = None  # Optional. If present, authenticationToken must be supplied
-        self.authenticationToken = None  # The authentication token to use with the web service
+
+        # Optional. If present, authenticationToken must be supplied
+        self.webServiceURL = None
+        # The authentication token to use with the web service
+        self.authenticationToken = None
 
         # Relevance Keys
-        self.locations = None  # Optional. Locations where the pass is relevant. For example, the location of your store.
-        self.relevantDate = None  # Optional. Date and time when the pass becomes relevant
 
-        self.associatedStoreIdentifiers = None  # Optional. A list of iTunes Store item identifiers for the associated apps.
+        # Optional. Locations where the pass is relevant.
+        # For example, the location of your store.
+        self.locations = None
+        # Optional. IBeacons data
+        self.ibeacons = None
+        # Optional. Date and time when the pass becomes relevant
+        self.relevantDate = None
+
+        # Optional. A list of iTunes Store item identifiers for
+        # the associated apps.
+        self.associatedStoreIdentifiers = None
 
         self.passInformation = passInformation
 
