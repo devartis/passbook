@@ -293,6 +293,7 @@ class Pass(object):
         # Optional. A list of iTunes Store item identifiers for
         # the associated apps.
         self.associatedStoreIdentifiers = None
+        self.appLaunchURL = None
         # Optional. Additional hidden data in json for the passbook
         self.userInfo = None
 
@@ -390,6 +391,8 @@ class Pass(object):
             d.update(
                 {'associatedStoreIdentifiers': self.associatedStoreIdentifiers}
             )
+        if self.appLaunchURL:
+            d.update({'appLaunchURL': self.appLaunchURL})
         if self.webServiceURL:
             d.update({'webServiceURL': self.webServiceURL,
                       'authenticationToken': self.authenticationToken})
