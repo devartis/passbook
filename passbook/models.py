@@ -297,6 +297,8 @@ class Pass(object):
         # Optional. Additional hidden data in json for the passbook
         self.userInfo = None
 
+        self.exprirationDate = None
+
         self.passInformation = passInformation
 
     # Adds file to the file array
@@ -393,6 +395,8 @@ class Pass(object):
             )
         if self.appLaunchURL:
             d.update({'appLaunchURL': self.appLaunchURL})
+        if self.exprirationDate:
+            d.update({'expirationDate': self.exprirationDate})
         if self.webServiceURL:
             d.update({'webServiceURL': self.webServiceURL,
                       'authenticationToken': self.authenticationToken})
