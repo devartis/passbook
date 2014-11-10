@@ -13,6 +13,7 @@ except ImportError:
 import hashlib
 import zipfile
 import decimal
+
 from M2Crypto import SMIME
 from M2Crypto import X509
 from M2Crypto.X509 import X509_Stack
@@ -116,12 +117,41 @@ class Barcode(object):
 
 class Location(object):
 
-    def __init__(self, latitude, longitude):
+    def __init__(self, latitude, longitude, altitude=0.0):
+        # Required. Latitude, in degrees, of the location.
+        try:
+            self.latitude = float(latitude)
+        except (ValueError, TypeError):
+            self.latitude = 0.0
+        # Required. Longitude, in degrees, of the location.
+        try:
+            self.longitude = float(longitude)
+        except (ValueError, TypeError):
+            self.longitude = 0.0
+        # Optional. Altitude, in meters, of the location.
+        try:
+            self.altitude = float(altitude)
+        except (ValueError, TypeError):
+            self.altitude = 0.0
+        # Optional. Notification distance
+        self.distance = None
+        # Optional. Text displayed on the lock screen when
+        # the pass is currently near the location
+        self.relevantText = ''
 
-        self.latitude = latitude  # Required. Latitude, in degrees, of the location.
-        self.longitude = longitude  # Required. Longitude, in degrees, of the location.
-        self.altitude = 0  # Optional. Altitude, in meters, of the location.
-        self.relevantText = ''  # Optional. Text displayed on the lock screen when the pass is currently
+    def json_dict(self):
+        return self.__dict__
+
+
+class IBeacon(object):
+    def __init__(self, proximityuuid, major, minor):
+        # IBeacon data
+        self.proximityUUID = proximityuuid
+        self.major = major
+        self.minor = minor
+
+        # Optional. Text message where near the ibeacon
+        self.relevantText = ''
 
     def json_dict(self):
         return self.__dict__
@@ -209,18 +239,30 @@ class StoreCard(PassInformation):
 
 class Pass(object):
 
-    def __init__(self, passInformation, json='', passTypeIdentifier='', organizationName='', teamIdentifier=''):
+    def __init__(self, passInformation, json='', passTypeIdentifier='',
+                 organizationName='', teamIdentifier=''):
 
         self._files = {}  # Holds the files to include in the .pkpass
         self._hashes = {}  # Holds the SHAs of the files array
 
-         # Standard Keys
-        self.teamIdentifier = teamIdentifier  # Required. Team identifier of the organization that originated and signed the pass, as issued by Apple.
-        self.passTypeIdentifier = passTypeIdentifier  # Required. Pass type identifier, as issued by Apple. The value must correspond with your signing certificate. Used for grouping.
-        self.organizationName = organizationName  # Required. Display name of the organization that originated and signed the pass.
-        self.serialNumber = ''  # Required. Serial number that uniquely identifies the pass.
-        self.description = ''  # Required. Brief description of the pass, used by the iOS accessibility technologies.
-        self.formatVersion = 1  # Required. Version of the file format. The value must be 1.
+        # Standard Keys
+
+        # Required. Team identifier of the organization that originated and
+        # signed the pass, as issued by Apple.
+        self.teamIdentifier = teamIdentifier
+        # Required. Pass type identifier, as issued by Apple. The value must
+        # correspond with your signing certificate. Used for grouping.
+        self.passTypeIdentifier = passTypeIdentifier
+        # Required. Display name of the organization that originated and
+        # signed the pass.
+        self.organizationName = organizationName
+        # Required. Serial number that uniquely identifies the pass.
+        self.serialNumber = ''
+        # Required. Brief description of the pass, used by the iOS
+        # accessibility technologies.
+        self.description = ''
+        # Required. Version of the file format. The value must be 1.
+        self.formatVersion = 1
 
         # Visual Appearance Keys
         self.backgroundColor = None  # Optional. Background color of the pass
@@ -228,17 +270,32 @@ class Pass(object):
         self.labelColor = None  # Optional. Color of the label text
         self.logoText = None  # Optional. Text displayed next to the logo
         self.barcode = None  # Optional. Information specific to barcodes.
-        self.suppressStripShine = False  # Optional. If true, the strip image is displayed
+        # Optional. If true, the strip image is displayed
+        self.suppressStripShine = False
 
         # Web Service Keys
-        self.webServiceURL = None  # Optional. If present, authenticationToken must be supplied
-        self.authenticationToken = None  # The authentication token to use with the web service
+
+        # Optional. If present, authenticationToken must be supplied
+        self.webServiceURL = None
+        # The authentication token to use with the web service
+        self.authenticationToken = None
 
         # Relevance Keys
-        self.locations = None  # Optional. Locations where the pass is relevant. For example, the location of your store.
-        self.relevantDate = None  # Optional. Date and time when the pass becomes relevant
 
-        self.associatedStoreIdentifiers = None  # Optional. A list of iTunes Store item identifiers for the associated apps.
+        # Optional. Locations where the pass is relevant.
+        # For example, the location of your store.
+        self.locations = None
+        # Optional. IBeacons data
+        self.ibeacons = None
+        # Optional. Date and time when the pass becomes relevant
+        self.relevantDate = None
+
+        # Optional. A list of iTunes Store item identifiers for
+        # the associated apps.
+        self.associatedStoreIdentifiers = None
+        self.appLaunchURL = None
+        # Optional. Additional hidden data in json for the passbook
+        self.userInfo = None
 
         self.passInformation = passInformation
 
@@ -268,7 +325,8 @@ class Pass(object):
         return json.dumps(self._hashes)
 
     # Creates a signature and saves it
-    def _createSignature(self, manifest, certificate, key, wwdr_certificate, password):
+    def _createSignature(self, manifest, certificate, key,
+                         wwdr_certificate, password):
         def passwordCallback(*args, **kwds):
             return password
 
@@ -325,8 +383,16 @@ class Pass(object):
             d.update({'logoText': self.logoText})
         if self.locations:
             d.update({'locations': self.locations})
+        if self.ibeacons:
+            d.update({'beacons': self.ibeacons})
+        if self.userInfo:
+            d.update({'userInfo': self.userInfo})
         if self.associatedStoreIdentifiers:
-            d.update({'associatedStoreIdentifiers': self.associatedStoreIdentifiers})
+            d.update(
+                {'associatedStoreIdentifiers': self.associatedStoreIdentifiers}
+            )
+        if self.appLaunchURL:
+            d.update({'appLaunchURL': self.appLaunchURL})
         if self.webServiceURL:
             d.update({'webServiceURL': self.webServiceURL,
                       'authenticationToken': self.authenticationToken})
