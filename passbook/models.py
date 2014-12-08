@@ -104,12 +104,12 @@ class CurrencyField(NumberField):
 
 class Barcode(object):
 
-    def __init__(self, message, format=BarcodeFormat.PDF417):
+    def __init__(self, message, format=BarcodeFormat.PDF417, altText=''):
 
         self.format = format
         self.message = message  # Required. Message or payload to be displayed as a barcode
         self.messageEncoding = 'iso-8859-1'  # Required. Text encoding that is used to convert the message
-        self.altText = ''  # Optional. Text displayed near the barcode
+        self.altText = altText  # Optional. Text displayed near the barcode
 
     def json_dict(self):
         return self.__dict__
