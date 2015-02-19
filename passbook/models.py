@@ -298,6 +298,7 @@ class Pass(object):
         self.userInfo = None
 
         self.exprirationDate = None
+        self.voided = None
 
         self.passInformation = passInformation
 
@@ -397,6 +398,8 @@ class Pass(object):
             d.update({'appLaunchURL': self.appLaunchURL})
         if self.exprirationDate:
             d.update({'expirationDate': self.exprirationDate})
+        if self.voided:
+            d.update({'voided': True})
         if self.webServiceURL:
             d.update({'webServiceURL': self.webServiceURL,
                       'authenticationToken': self.authenticationToken})
