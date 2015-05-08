@@ -10,3 +10,5 @@ v0.2.1, 10/02/2012 -- Bugfix
 v0.2.3, 10/31/2012 -- Better handling of Passbook's optional parameters. Improved documentation.
 
 v1.0.0, 12/10/2012 -- Fixed barcode serialization and unicode paths. 
+
+v1.0.2, 08/05/2015 -- Added new field values and validations
