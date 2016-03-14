@@ -297,7 +297,7 @@ class Pass(object):
         # Optional. Additional hidden data in json for the passbook
         self.userInfo = None
 
-        self.exprirationDate = None
+        self.expirationDate = None
         self.voided = None
 
         self.passInformation = passInformation
@@ -396,8 +396,8 @@ class Pass(object):
             )
         if self.appLaunchURL:
             d.update({'appLaunchURL': self.appLaunchURL})
-        if self.exprirationDate:
-            d.update({'expirationDate': self.exprirationDate})
+        if self.expirationDate:
+            d.update({'expirationDate': self.expirationDate})
         if self.voided:
             d.update({'voided': True})
         if self.webServiceURL:
