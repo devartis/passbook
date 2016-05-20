@@ -24,16 +24,20 @@ def test_code128_pass():
     """
     This test is to create a pass with a new code128 format, freezes it to json, then reparses it and validates it defaults the legacy barcode correctly
     """
-    passfile = create_shell_pass(BarcodeFormat.PDF417)
+    passfile = create_shell_pass()
     jsonData = created_pass = passfile._createPassJson()
-    print(jsonData)
     thawedJson = json.loads(jsonData)
     assert thawedJson['barcode']['format'] == BarcodeFormat.PDF417
-    assert thawedJson['barcodes'][0]['format'] == BarcodeFormat.PDF417
+    assert thawedJson['barcodes'][0]['format'] == BarcodeFormat.CODE128
 
 def test_pdf_417_pass():
     """
     This test is to create a pass with a barcode that is valid in both past and present versions of IOS
     """
+    passfile = create_shell_pass(BarcodeFormat.PDF417)
+    jsonData = created_pass = passfile._createPassJson()
+    thawedJson = json.loads(jsonData)
+    assert thawedJson['barcode']['format'] == BarcodeFormat.PDF417
+    assert thawedJson['barcodes'][0]['format'] == BarcodeFormat.PDF417
     passfile = create_shell_pass()
 

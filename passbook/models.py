@@ -26,13 +26,11 @@ class Alignment:
     JUSTIFIED = 'PKTextAlignmentJustified'
     NATURAL = 'PKTextAlignmentNatural'
 
-class BarcodeFormat:
+class BarcodeFormat:    
     PDF417 = 'PKBarcodeFormatPDF417'
     QR = 'PKBarcodeFormatQR'
     AZTEC = 'PKBarcodeFormatAztec'
     CODE128 = 'PKBarcodeFormatCode128'
-
-LEGACY_BARCODE_FORMATS = [BarcodeFormat.PDF417, BarcodeFormat.QR, BarcodeFormat.AZTEC]
 
 class TransitType:
     AIR = 'PKTransitTypeAir'
@@ -375,9 +373,10 @@ class Pass(object):
         }
         #barcodes have 2 fields, 'barcode' is legacy so limit it to the legacy formats, 'barcodes' supports all
         if self.barcode:
+            original_formats = [BarcodeFormat.PDF417, BarcodeFormat.QR, BarcodeFormat.AZTEC]
             legacyBarcode = self.barcode
             newBarcodes = [self.barcode.json_dict()]
-            if self.barcode.format not in LEGACY_BARCODE_FORMATS:
+            if self.barcode.format not in original_formats:
                 legacyBarcode = Barcode(self.barcode.message, BarcodeFormat.PDF417, self.barcode.altText)
             d.update({'barcodes': newBarcodes})
             d.update({'barcode': legacyBarcode})
