@@ -267,8 +267,8 @@ class Pass(object):
         self.foregroundColor = None  # Optional. Foreground color of the pass,
         self.labelColor = None  # Optional. Color of the label text
         self.logoText = None  # Optional. Text displayed next to the logo
-        self.barcode = None  # Optional. Information specific to barcodes.  This is deprecated.
-        self.barcodes = None #Optional.  New barcodes (non legacy types)
+        self.barcode = None  # Optional. Information specific to barcodes.  This is deprecated and can only be set to original barcode formats.
+        self.barcodes = None #Optional.  All supported barcodes
         # Optional. If true, the strip image is displayed
         self.suppressStripShine = False
 
