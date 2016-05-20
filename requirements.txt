@@ -1,1 +1,2 @@
 M2Crypto>=0.21.1
+pytest

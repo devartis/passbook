@@ -26,12 +26,13 @@ class Alignment:
     JUSTIFIED = 'PKTextAlignmentJustified'
     NATURAL = 'PKTextAlignmentNatural'
 
-
 class BarcodeFormat:
     PDF417 = 'PKBarcodeFormatPDF417'
     QR = 'PKBarcodeFormatQR'
     AZTEC = 'PKBarcodeFormatAztec'
+    CODE128 = 'PKBarcodeFormatCode128'
 
+LEGACY_BARCODE_FORMATS = [BarcodeFormat.PDF417, BarcodeFormat.QR, BarcodeFormat.AZTEC]
 
 class TransitType:
     AIR = 'PKTransitTypeAir'
@@ -105,7 +106,6 @@ class CurrencyField(NumberField):
 class Barcode(object):
 
     def __init__(self, message, format=BarcodeFormat.PDF417, altText=''):
-
         self.format = format
         self.message = message  # Required. Message or payload to be displayed as a barcode
         self.messageEncoding = 'iso-8859-1'  # Required. Text encoding that is used to convert the message
@@ -269,7 +269,8 @@ class Pass(object):
         self.foregroundColor = None  # Optional. Foreground color of the pass,
         self.labelColor = None  # Optional. Color of the label text
         self.logoText = None  # Optional. Text displayed next to the logo
-        self.barcode = None  # Optional. Information specific to barcodes.
+        self.barcode = None  # Optional. Information specific to barcodes.  This is deprecated.
+        self.barcodes = None #Optional.  New barcodes (non legacy types)
         # Optional. If true, the strip image is displayed
         self.suppressStripShine = False
 
@@ -372,8 +373,15 @@ class Pass(object):
             'suppressStripShine': self.suppressStripShine,
             self.passInformation.jsonname: self.passInformation.json_dict()
         }
+        #barcodes have 2 fields, 'barcode' is legacy so limit it to the legacy formats, 'barcodes' supports all
         if self.barcode:
-            d.update({'barcode': self.barcode.json_dict()})
+            legacyBarcode = self.barcode
+            newBarcodes = [self.barcode.json_dict()]
+            if self.barcode.format not in LEGACY_BARCODE_FORMATS:
+                legacyBarcode = Barcode(self.barcode.message, BarcodeFormat.PDF417, self.barcode.altText)
+            d.update({'barcodes': newBarcodes})
+            d.update({'barcode': legacyBarcode})
+
         if self.relevantDate:
             d.update({'relevantDate': self.relevantDate})
         if self.backgroundColor:
