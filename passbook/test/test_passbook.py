@@ -6,10 +6,25 @@ try:
     import json
 except ImportError:
     import simplejson as json
+import pytest
+from M2Crypto import BIO
+from M2Crypto import SMIME
+from M2Crypto import X509
+from M2Crypto import m2
+from path import Path
+
 from passbook.models import Barcode, BarcodeFormat, Pass, StoreCard
 
-from path import Path
 cwd = Path(__file__).parent
+
+wwdr_certificate = cwd / 'certificates/wwdr_certificate.pem'
+certificate = cwd / 'certificates/certificate.pem'
+key = cwd / 'certificates/key.pem'
+password_file = cwd / 'certificates/password.txt'
+
+
+def _certificates_mising():
+    return not wwdr_certificate.exists() or not certificate.exists() or not key.exists()
 
 
 def create_shell_pass(barcodeFormat=BarcodeFormat.CODE128):
@@ -125,3 +140,72 @@ def test_files():
     manifest_json = passfile._createManifest(passfile._createPassJson())
     manifest = json.loads(manifest_json)
     assert '170eed23019542b0a2890a0bf753effea0db181a' == manifest['logo.png']
+
+
+@pytest.mark.skipif(_certificates_mising(), reason='Certificates missing')
+def test_signing():
+    """
+    This test can only run locally if you provide your personal Apple Wallet
+    certificates, private key and password. It would not be wise to add
+    them to git. Store them in the files indicated below, they are ignored
+    by git.
+    """
+    try:
+        with open(password_file) as file_:
+            password = file_.read().strip()
+    except IOError:
+        password = ''
+
+    passfile = create_shell_pass()
+    manifest_json = passfile._createManifest(passfile._createPassJson())
+    signature = passfile._createSignature(
+        manifest_json,
+        certificate,
+        key,
+        wwdr_certificate,
+        password,
+    )
+
+    smime_obj = SMIME.SMIME()
+
+    store = X509.X509_Store()
+    store.load_info(str(wwdr_certificate))
+    smime_obj.set_x509_store(store)
+
+    signature_bio = BIO.MemoryBuffer(signature)
+    signature_p7 = SMIME.PKCS7(m2.pkcs7_read_bio_der(signature_bio._ptr()), 1)
+
+    stack = signature_p7.get0_signers(X509.X509_Stack())
+    smime_obj.set_x509_stack(stack)
+
+    data_bio = BIO.MemoryBuffer(manifest_json)
+
+    # PKCS7_NOVERIFY = do not verify the signers certificate of a signed message.
+    assert smime_obj.verify(
+        signature_p7, data_bio, flags=SMIME.PKCS7_NOVERIFY
+    ) == manifest_json
+
+    tampered_manifest = '{"pass.json": "foobar"}'
+    data_bio = BIO.MemoryBuffer(tampered_manifest)
+    # Verification MUST fail!
+    with pytest.raises(SMIME.PKCS7_Error):
+        smime_obj.verify(signature_p7, data_bio, flags=SMIME.PKCS7_NOVERIFY)
+
+
+@pytest.mark.skipif(_certificates_mising(), reason='Certificates missing')
+def test_passbook_creation():
+    """
+    This test can only run locally if you provide your personal Apple Wallet
+    certificates, private key and password. It would not be wise to add
+    them to git. Store them in the files indicated below, they are ignored
+    by git.
+    """
+    try:
+        with open(password_file) as file_:
+            password = file_.read().strip()
+    except IOError:
+        password = ''
+
+    passfile = create_shell_pass()
+    passfile.addFile('icon.png', open(cwd / 'static/white_square.png', 'rb'))
+    passfile.create(certificate, key, wwdr_certificate, password)
