@@ -2,6 +2,8 @@
 Passbook
 ========
 
+[![Build Status](https://travis-ci.org/devartis/passbook.svg?branch=master)](https://travis-ci.org/devartis/passbook)
+
 Python library to create Apple Wallet (.pkpass) files (Apple Wallet 
 has previously been known as Passbook in iOS 6 to iOS 8).
 
