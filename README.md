@@ -61,4 +61,20 @@ Certificate is available @ http://developer.apple.com/certificationauthority/App
 
 It can be exported from KeyChain into a .pem (e.g. wwdr.pem).
 
+## Testing
+
+You can run the tests with `py.test` or optionally with coverage support 
+(install `pytest-cov` first): 
+
+    py.test --cov
+    
+You can also generate a HTML report of the coverage:
+
+    py.test --cov-report html
+
+You can run the tests against multiple versions of Python by running `tox` 
+which you need to install first.
+
+## Credits
+
 Developed by [devartis](http://www.devartis.com).

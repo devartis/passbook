@@ -1,0 +1,6 @@
+[run]
+source = passbook
+branch = 1
+
+[report]
+omit = *test*
