@@ -1,6 +1,4 @@
-========
-Passbook
-========
+# Passbook
 
 [![Build Status](https://travis-ci.org/devartis/passbook.svg?branch=master)](https://travis-ci.org/devartis/passbook)
 
@@ -13,30 +11,24 @@ See the [Wallet Topic Page](https://developer.apple.com/wallet/) and the
 > If you need the server side implementation (API / WebServices) in django you should check http://github.com/devartis/django-passbook.
 
 
-Getting Started
-==========================
+## Getting Started
 
-1. Get a Pass Type Id
+1) Get a Pass Type Id
 
-Visit the iOS Provisioning Portal -> Pass Type IDs -> New Pass Type ID
-Select pass type id -> Configure (Follow steps and download generated pass.cer file)
-Use Keychain tool to export a Certificates.p12 file (need Apple Root Certificate installed)
+* Visit the iOS Provisioning Portal -> Pass Type IDs -> New Pass Type ID
+* Select pass type id -> Configure (Follow steps and download generated pass.cer file)
+* Use Keychain tool to export a Certificates.p12 file (need Apple Root Certificate installed)
 
-2. Generate the necessary certificate and key .pem files
+2) Generate the necessary certificate and key .pem files
 
-```
-openssl pkcs12 -in "Certificates.p12" -clcerts -nokeys -out certificate.pem 
-openssl pkcs12 -in "Certificates.p12" -nocerts -out key.pem
-```
+    openssl pkcs12 -in "Certificates.p12" -clcerts -nokeys -out certificate.pem 
+    openssl pkcs12 -in "Certificates.p12" -nocerts -out key.pem
 
-3. Ensure you have M2Crypto installed
+3) Ensure you have M2Crypto installed
 
-```
-sudo easy_install M2Crypto
-```
+    sudo easy_install M2Crypto
 
-Typical Usage
-==========================
+## Typical Usage
 
     #!/usr/bin/env python
 
@@ -59,12 +51,14 @@ Typical Usage
     # Including the icon and logo is necessary for the passbook to be valid.
     passfile.addFile('icon.png', open('images/icon.png', 'r'))
     passfile.addFile('logo.png', open('images/logo.png', 'r'))
-    passfile.create('certificate.pem', 'key.pem', 'wwdr.pem', '123456', 'test.pkpass') # Create and output the Passbook file (.pkpass) 
+    
+    # Create and output the Passbook file (.pkpass) 
+    passfile.create('certificate.pem', 'key.pem', 'wwdr.pem', '123456', 'test.pkpass')
 
-Note: Getting WWDR Certificate
-==========================
+## Note: Getting WWDR Certificate
 
 Certificate is available @ http://developer.apple.com/certificationauthority/AppleWWDRCA.cer
-It can be exported from KeyChain into a .pem (e.g. wwdr.pem)
 
-Developed by `devartis <http://www.devartis.com>`.
+It can be exported from KeyChain into a .pem (e.g. wwdr.pem).
+
+Developed by [devartis](http://www.devartis.com).
