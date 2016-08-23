@@ -13,7 +13,7 @@ from M2Crypto import X509
 from M2Crypto import m2
 from path import Path
 
-from passbook.models import Barcode, BarcodeFormat, Pass, StoreCard
+from passbook.models import Barcode, BarcodeFormat, CurrencyField, Pass, StoreCard
 
 cwd = Path(__file__).parent
 
@@ -96,6 +96,40 @@ def test_auxiliary_fields():
     assert pass_json['storeCard']['auxiliaryFields'][0]['key'] == 'aux1'
     assert pass_json['storeCard']['auxiliaryFields'][0]['value'] == 'VIP Store Card'
     assert pass_json['storeCard']['auxiliaryFields'][0]['label'] == 'Famous Inc.'
+
+
+def test_with_currency_field():
+    passfile = create_shell_pass()
+    balance_field = CurrencyField(
+        'balance',
+        float(22.00),
+        'test label',
+        'USD',
+    )
+    balance_field.changeMessage = 'Balance changed to %@.'
+    passfile.passInformation.headerFields.append(balance_field)
+    passfile.passInformation.addAuxiliaryField('aux1', 'VIP Store Card', 'Famous Inc.')
+    pass_json = passfile.json_dict()
+    assert 'numberStyle' not in pass_json['storeCard']['headerFields'][0]
+    assert 'currencyCode' in pass_json['storeCard']['headerFields'][0]
+
+
+def test_missing_currency_field():
+    passfile = create_shell_pass()
+    balance_field = CurrencyField(
+        'balance',
+        float(22.00),
+        'test label',
+        None
+        )
+    del balance_field.currencyCode
+    balance_field.changeMessage = 'Balance changed to %@.'
+    passfile.passInformation.headerFields.append(balance_field)
+    passfile.passInformation.addAuxiliaryField('aux1', 'VIP Store Card', 'Famous Inc.')
+    pass_json = passfile.json_dict()
+    print(pass_json)
+    assert 'numberStyle' in pass_json['storeCard']['headerFields'][0]
+    assert 'currencyCode' not in pass_json['storeCard']['headerFields'][0]
 
 
 def test_code128_pass():
