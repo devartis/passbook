@@ -71,11 +71,14 @@ class Field(object):
 
 class DateField(Field):
 
-    def __init__(self, key, value, label=''):
+    def __init__(self, key, value, label='', dateStyle=DateStyle.SHORT,
+                 timeStyle=DateStyle.SHORT, ignoresTimeZone=False):
         super(DateField, self).__init__(key, value, label)
-        self.dateStyle = DateStyle.SHORT  # Style of date to display
-        self.timeStyle = DateStyle.SHORT  # Style of time to display
+        self.dateStyle = dateStyle  # Style of date to display
+        self.timeStyle = timeStyle  # Style of time to display
         self.isRelative = False  # If true, the labels value is displayed as a relative date
+        if ignoresTimeZone:
+            self.ignoresTimeZone = ignoresTimeZone
 
     def json_dict(self):
         return self.__dict__
