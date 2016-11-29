@@ -71,11 +71,14 @@ class Field(object):
 
 class DateField(Field):
 
-    def __init__(self, key, value, label=''):
+    def __init__(self, key, value, label='', dateStyle=DateStyle.SHORT,
+                 timeStyle=DateStyle.SHORT, ignoresTimeZone=False):
         super(DateField, self).__init__(key, value, label)
-        self.dateStyle = DateStyle.SHORT  # Style of date to display
-        self.timeStyle = DateStyle.SHORT  # Style of time to display
+        self.dateStyle = dateStyle  # Style of date to display
+        self.timeStyle = timeStyle  # Style of time to display
         self.isRelative = False  # If true, the labels value is displayed as a relative date
+        if ignoresTimeZone:
+            self.ignoresTimeZone = ignoresTimeZone
 
     def json_dict(self):
         return self.__dict__
@@ -103,11 +106,12 @@ class CurrencyField(NumberField):
 
 class Barcode(object):
 
-    def __init__(self, message, format=BarcodeFormat.PDF417, altText=''):
+    def __init__(self, message, format=BarcodeFormat.PDF417, altText='', messageEncoding='iso-8859-1'):
         self.format = format
         self.message = message  # Required. Message or payload to be displayed as a barcode
-        self.messageEncoding = 'iso-8859-1'  # Required. Text encoding that is used to convert the message
-        self.altText = altText  # Optional. Text displayed near the barcode
+        self.messageEncoding = messageEncoding  # Required. Text encoding that is used to convert the message
+        if altText:
+            self.altText = altText  # Optional. Text displayed near the barcode
 
     def json_dict(self):
         return self.__dict__
