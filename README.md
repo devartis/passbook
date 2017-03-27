@@ -19,12 +19,20 @@ See the [Wallet Topic Page](https://developer.apple.com/wallet/) and the
 * Select pass type id -> Configure (Follow steps and download generated pass.cer file)
 * Use Keychain tool to export a Certificates.p12 file (need Apple Root Certificate installed)
 
-2) Generate the necessary certificate and key .pem files
+2) Generate the necessary certificate
 
-    openssl pkcs12 -in "Certificates.p12" -clcerts -nokeys -out certificate.pem 
-    openssl pkcs12 -in "Certificates.p12" -nocerts -out key.pem
+```shell
+    $ openssl pkcs12 -in "Certificates.p12" -clcerts -nokeys -out certificate.pem   
+```
+3) Generate the key.pem
 
-3) Ensure you have M2Crypto installed
+```shell
+    $ openssl pkcs12 -in "Certificates.p12" -nocerts -out key.pem
+```
+
+You will be asked for an export password (or export phrase). In this example it will be `123456`, the script will use this as an argument to output the desired `.pkpass`
+
+4) Ensure you have M2Crypto installed
 
     sudo easy_install M2Crypto
 
@@ -52,8 +60,9 @@ See the [Wallet Topic Page](https://developer.apple.com/wallet/) and the
     passfile.addFile('icon.png', open('images/icon.png', 'r'))
     passfile.addFile('logo.png', open('images/logo.png', 'r'))
     
-    # Create and output the Passbook file (.pkpass) 
-    passfile.create('certificate.pem', 'key.pem', 'wwdr.pem', '123456', 'test.pkpass')
+    # Create and output the Passbook file (.pkpass)
+    password = '123456'
+    passfile.create('certificate.pem', 'key.pem', 'wwdr.pem', password , 'test.pkpass')
 
 ## Note: Getting WWDR Certificate
 
