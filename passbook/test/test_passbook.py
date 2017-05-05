@@ -127,7 +127,6 @@ def test_missing_currency_field():
     passfile.passInformation.headerFields.append(balance_field)
     passfile.passInformation.addAuxiliaryField('aux1', 'VIP Store Card', 'Famous Inc.')
     pass_json = passfile.json_dict()
-    print(pass_json)
     assert 'numberStyle' in pass_json['storeCard']['headerFields'][0]
     assert 'currencyCode' not in pass_json['storeCard']['headerFields'][0]
 
