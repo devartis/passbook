@@ -101,7 +101,12 @@ class CurrencyField(NumberField):
         self.currencyCode = currencyCode  # ISO 4217 currency code
 
     def json_dict(self):
-        return self.__dict__
+        json_dictionary = self.__dict__
+        # if the consumer provides both a style and currency, only encode the currency code
+        # apple will reject the pass otherwise
+        if json_dictionary.get('currencyCode') and json_dictionary.get('numberStyle'):
+            json_dictionary.pop('numberStyle', None)
+        return json_dictionary
 
 
 class Barcode(object):
