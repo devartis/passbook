@@ -57,8 +57,8 @@ You will be asked for an export password (or export phrase). In this example it 
     passfile.barcode = Barcode(message = 'Barcode message')    
 
     # Including the icon and logo is necessary for the passbook to be valid.
-    passfile.addFile('icon.png', open('images/icon.png', 'r'))
-    passfile.addFile('logo.png', open('images/logo.png', 'r'))
+    passfile.addFile('icon.png', open('images/icon.png', 'rb'))
+    passfile.addFile('logo.png', open('images/logo.png', 'rb'))
     
     # Create and output the Passbook file (.pkpass)
     password = '123456'

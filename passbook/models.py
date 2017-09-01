@@ -1,18 +1,9 @@
-#:coding=utf8:
-
-try:
-    import json
-except ImportError:
-    import simplejson as json
-
-try:
-    from cStringIO import StringIO
-except ImportError:
-    from StringIO import StringIO
-
-import hashlib
-import zipfile
+# -*- coding: utf-8 -*-
 import decimal
+import hashlib
+import json
+import zipfile
+from io import BytesIO
 
 from M2Crypto import SMIME
 from M2Crypto import X509
@@ -26,11 +17,13 @@ class Alignment:
     JUSTIFIED = 'PKTextAlignmentJustified'
     NATURAL = 'PKTextAlignmentNatural'
 
-class BarcodeFormat:    
+
+class BarcodeFormat:
     PDF417 = 'PKBarcodeFormatPDF417'
     QR = 'PKBarcodeFormatQR'
     AZTEC = 'PKBarcodeFormatAztec'
     CODE128 = 'PKBarcodeFormatCode128'
+
 
 class TransitType:
     AIR = 'PKTransitTypeAir'
@@ -315,44 +308,60 @@ class Pass(object):
         manifest = self._createManifest(pass_json)
         signature = self._createSignature(manifest, certificate, key, wwdr_certificate, password)
         if not zip_file:
-            zip_file = StringIO()
+            zip_file = BytesIO()
         self._createZip(pass_json, manifest, signature, zip_file=zip_file)
         return zip_file
 
     def _createPassJson(self):
         return json.dumps(self, default=PassHandler)
 
-    # creates the hashes for the files and adds them into a json string.
     def _createManifest(self, pass_json):
-        # Creates SHA hashes for all files in package
-        self._hashes['pass.json'] = hashlib.sha1(pass_json).hexdigest()
+        """
+        Creates the hashes for all the files included in the pass file.
+        """
+        self._hashes['pass.json'] = hashlib.sha1(pass_json.encode('utf-8')).hexdigest()
         for filename, filedata in self._files.items():
             self._hashes[filename] = hashlib.sha1(filedata).hexdigest()
         return json.dumps(self._hashes)
 
-    # Creates a signature and saves it
-    def _createSignature(self, manifest, certificate, key,
-                         wwdr_certificate, password):
+    def _get_smime(self, certificate, key, wwdr_certificate, password):
+        """
+        :return: M2Crypto.SMIME.SMIME
+        """
         def passwordCallback(*args, **kwds):
-            return password
+            return bytes(password, encoding='ascii')
 
         smime = SMIME.SMIME()
-        # we need to attach wwdr cert as X509
+
         wwdrcert = X509.load_cert(wwdr_certificate)
         stack = X509_Stack()
         stack.push(wwdrcert)
         smime.set_x509_stack(stack)
 
-        # need to cast to string since load_key doesnt work with unicode paths
-        smime.load_key(str(key), certificate, callback=passwordCallback)
-        pk7 = smime.sign(SMIME.BIO.MemoryBuffer(manifest), flags=SMIME.PKCS7_DETACHED | SMIME.PKCS7_BINARY)
+        smime.load_key(key, certfile=certificate, callback=passwordCallback)
+        return smime
 
-        pem = SMIME.BIO.MemoryBuffer()
-        pk7.write(pem)
-        # convert pem to der
-        der = ''.join(l.strip() for l in pem.read().split('-----')[2].splitlines()).decode('base64')
+    def _sign_manifest(self, manifest, certificate, key, wwdr_certificate, password):
+        """
+        :return: M2Crypto.SMIME.PKCS7
+        """
+        smime = self._get_smime(certificate, key, wwdr_certificate, password)
+        pkcs7 = smime.sign(
+            SMIME.BIO.MemoryBuffer(bytes(manifest, encoding='utf8')),
+            flags=SMIME.PKCS7_DETACHED | SMIME.PKCS7_BINARY
+        )
+        return pkcs7
 
-        return der
+    def _createSignature(self, manifest, certificate, key,
+                         wwdr_certificate, password):
+        """
+        Creates a signature (DER encoded) of the manifest. The manifest is the file
+        containing a list of files included in the pass file (and their hashes).
+        """
+        pk7 = self._sign_manifest(manifest, certificate, key, wwdr_certificate, password)
+        der = SMIME.BIO.MemoryBuffer()
+        pk7.write_der(der)
+        return der.read()
 
     # Creates .pkpass (zip archive)
     def _createZip(self, pass_json, manifest, signature, zip_file=None):
