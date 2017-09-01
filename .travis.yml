@@ -1,9 +1,14 @@
 language: python
-python: 2.7
-env:
-  - TOXENV=py27
+dist: trusty
+sudo: true
+python:
+  - "3.5"
+  - "3.6"
+  - "3.7"
+  - "3.8"
 install:
   - pip install tox
+  - pip install tox-travis
 script:
   - tox
 before_install:
