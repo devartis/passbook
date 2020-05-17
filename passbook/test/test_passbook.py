@@ -11,14 +11,10 @@ from passbook.models import Barcode, BarcodeFormat, Pass, StoreCard
 
 cwd = Path(__file__).parent
 
-wwdr_certificate = cwd / 'certificates/wwdr_certificate.pem'
-certificate = cwd / 'certificates/certificate.pem'
-key = cwd / 'certificates/key.pem'
-password_file = cwd / 'certificates/password.txt'
-
-
-def _certificates_mising():
-    return not wwdr_certificate.exists() or not certificate.exists() or not key.exists()
+wwdr_certificate = cwd / 'certificates' / 'wwdr_certificate.pem'
+certificate = cwd / 'certificates' / 'certificate.pem'
+key = cwd / 'certificates' / 'private.key'
+password_file = cwd / 'certificates' / 'password.txt'
 
 
 def create_shell_pass(barcodeFormat=BarcodeFormat.CODE128):
@@ -136,7 +132,6 @@ def test_files():
     assert '170eed23019542b0a2890a0bf753effea0db181a' == manifest['logo.png']
 
 
-@pytest.mark.skipif(_certificates_mising(), reason='Certificates missing')
 def test_signing():
     """
     This test can only run locally if you provide your personal Apple Wallet
@@ -187,7 +182,6 @@ def test_signing():
         smime.verify(signature, data_bio, flags=SMIME.PKCS7_NOVERIFY)
 
 
-@pytest.mark.skipif(_certificates_mising(), reason='Certificates missing')
 def test_passbook_creation():
     """
     This test can only run locally if you provide your personal Apple Wallet
