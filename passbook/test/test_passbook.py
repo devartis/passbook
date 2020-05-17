@@ -19,7 +19,7 @@ password_file = cwd / 'certificates' / 'password.txt'
 
 def create_shell_pass(barcodeFormat=BarcodeFormat.CODE128):
     cardInfo = StoreCard()
-    cardInfo.addPrimaryField('name', 'John Doe', 'Name')
+    cardInfo.addPrimaryField('name', u'Jähn Doe', 'Name')
     stdBarcode = Barcode('test barcode', barcodeFormat, 'alternate text')
     passfile = Pass(cardInfo, organizationName='Org Name', passTypeIdentifier='Pass Type ID', teamIdentifier='Team Identifier')
     passfile.barcode = stdBarcode
