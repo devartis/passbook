@@ -66,7 +66,7 @@ class DateField(Field):
 
     def __init__(self, key, value, label='', dateStyle=DateStyle.SHORT,
                  timeStyle=DateStyle.SHORT, ignoresTimeZone=False):
-        super(DateField, self).__init__(key, value, label)
+        super().__init__(key, value, label)
         self.dateStyle = dateStyle  # Style of date to display
         self.timeStyle = timeStyle  # Style of time to display
         self.isRelative = False  # If true, the labels value is displayed as a relative date
@@ -80,7 +80,7 @@ class DateField(Field):
 class NumberField(Field):
 
     def __init__(self, key, value, label=''):
-        super(NumberField, self).__init__(key, value, label)
+        super().__init__(key, value, label)
         self.numberStyle = NumberStyle.DECIMAL  # Style of date to display
 
     def json_dict(self):
@@ -90,7 +90,7 @@ class NumberField(Field):
 class CurrencyField(Field):
 
     def __init__(self, key, value, label='', currencyCode=''):
-        super(CurrencyField, self).__init__(key, value, label)
+        super().__init__(key, value, label)
         self.currencyCode = currencyCode  # ISO 4217 currency code
 
     def json_dict(self):
@@ -194,12 +194,12 @@ class PassInformation(object):
 class BoardingPass(PassInformation):
 
     def __init__(self, transitType=TransitType.AIR):
-        super(BoardingPass, self).__init__()
+        super().__init__()
         self.transitType = transitType
         self.jsonname = 'boardingPass'
 
     def json_dict(self):
-        d = super(BoardingPass, self).json_dict()
+        d = super().json_dict()
         d.update({'transitType': self.transitType})
         return d
 
@@ -207,28 +207,28 @@ class BoardingPass(PassInformation):
 class Coupon(PassInformation):
 
     def __init__(self):
-        super(Coupon, self).__init__()
+        super().__init__()
         self.jsonname = 'coupon'
 
 
 class EventTicket(PassInformation):
 
     def __init__(self):
-        super(EventTicket, self).__init__()
+        super().__init__()
         self.jsonname = 'eventTicket'
 
 
 class Generic(PassInformation):
 
     def __init__(self):
-        super(Generic, self).__init__()
+        super().__init__()
         self.jsonname = 'generic'
 
 
 class StoreCard(PassInformation):
 
     def __init__(self):
-        super(StoreCard, self).__init__()
+        super().__init__()
         self.jsonname = 'storeCard'
 
 
