@@ -27,7 +27,7 @@ See the [Wallet Topic Page](https://developer.apple.com/wallet/) and the
 3) Generate the key.pem
 
 ```shell
-    $ openssl pkcs12 -in "Certificates.p12" -nocerts -out key.pem
+    $ openssl pkcs12 -in "Certificates.p12" -nocerts -out private.key
 ```
 
 You will be asked for an export password (or export phrase). In this example it will be `123456`, the script will use this as an argument to output the desired `.pkpass`
@@ -57,12 +57,12 @@ You will be asked for an export password (or export phrase). In this example it 
     passfile.barcode = Barcode(message = 'Barcode message')    
 
     # Including the icon and logo is necessary for the passbook to be valid.
-    passfile.addFile('icon.png', open('images/icon.png', 'r'))
-    passfile.addFile('logo.png', open('images/logo.png', 'r'))
+    passfile.addFile('icon.png', open('images/icon.png', 'rb'))
+    passfile.addFile('logo.png', open('images/logo.png', 'rb'))
     
     # Create and output the Passbook file (.pkpass)
     password = '123456'
-    passfile.create('certificate.pem', 'key.pem', 'wwdr.pem', password , 'test.pkpass')
+    passfile.create('certificate.pem', 'private.key', 'wwdr.pem', password , 'test.pkpass')
 
 ## Note: Getting WWDR Certificate
 
@@ -87,3 +87,7 @@ which you need to install first.
 ## Credits
 
 Developed by [devartis](http://www.devartis.com).
+
+## Contributors
+
+Martin Bächtold

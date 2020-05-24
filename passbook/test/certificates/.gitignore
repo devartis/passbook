@@ -1,2 +1,14 @@
-password.txt
-*.pem
+# This directory must only contain some self generated private key
+# and certificate, not the ones provided by Apple.
+
+# Ignore everyhting...
+*
+
+# ...except the gitignore file itself:
+!.gitignore
+
+# ...and the files needed for the tests:
+!certificate.pem
+!password.txt
+!private.key
+!wwdr_certificate.pem

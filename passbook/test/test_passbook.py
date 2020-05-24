@@ -1,35 +1,25 @@
-"""
-Test some basic pass file generation
-"""
+# -*- coding: utf-8 -*-
+import json
 
-try:
-    import json
-except ImportError:
-    import simplejson as json
 import pytest
 from M2Crypto import BIO
 from M2Crypto import SMIME
 from M2Crypto import X509
-from M2Crypto import m2
 from path import Path
 
 from passbook.models import Barcode, BarcodeFormat, Pass, StoreCard
 
 cwd = Path(__file__).parent
 
-wwdr_certificate = cwd / 'certificates/wwdr_certificate.pem'
-certificate = cwd / 'certificates/certificate.pem'
-key = cwd / 'certificates/key.pem'
-password_file = cwd / 'certificates/password.txt'
-
-
-def _certificates_mising():
-    return not wwdr_certificate.exists() or not certificate.exists() or not key.exists()
+wwdr_certificate = cwd / 'certificates' / 'wwdr_certificate.pem'
+certificate = cwd / 'certificates' / 'certificate.pem'
+key = cwd / 'certificates' / 'private.key'
+password_file = cwd / 'certificates' / 'password.txt'
 
 
 def create_shell_pass(barcodeFormat=BarcodeFormat.CODE128):
     cardInfo = StoreCard()
-    cardInfo.addPrimaryField('name', 'John Doe', 'Name')
+    cardInfo.addPrimaryField('name', u'Jähn Doe', 'Name')
     stdBarcode = Barcode('test barcode', barcodeFormat, 'alternate text')
     passfile = Pass(cardInfo, organizationName='Org Name', passTypeIdentifier='Pass Type ID', teamIdentifier='Team Identifier')
     passfile.barcode = stdBarcode
@@ -142,7 +132,6 @@ def test_files():
     assert '170eed23019542b0a2890a0bf753effea0db181a' == manifest['logo.png']
 
 
-@pytest.mark.skipif(_certificates_mising(), reason='Certificates missing')
 def test_signing():
     """
     This test can only run locally if you provide your personal Apple Wallet
@@ -158,7 +147,7 @@ def test_signing():
 
     passfile = create_shell_pass()
     manifest_json = passfile._createManifest(passfile._createPassJson())
-    signature = passfile._createSignature(
+    signature = passfile._sign_manifest(
         manifest_json,
         certificate,
         key,
@@ -166,33 +155,33 @@ def test_signing():
         password,
     )
 
-    smime_obj = SMIME.SMIME()
+    smime = passfile._get_smime(
+        certificate,
+        key,
+        wwdr_certificate,
+        password,
+    )
 
     store = X509.X509_Store()
-    store.load_info(str(wwdr_certificate))
-    smime_obj.set_x509_store(store)
+    try:
+        store.load_info(bytes(wwdr_certificate, encoding='utf8'))
+    except TypeError:
+        store.load_info(str(wwdr_certificate))
 
-    signature_bio = BIO.MemoryBuffer(signature)
-    signature_p7 = SMIME.PKCS7(m2.pkcs7_read_bio_der(signature_bio._ptr()), 1)
+    smime.set_x509_store(store)
 
-    stack = signature_p7.get0_signers(X509.X509_Stack())
-    smime_obj.set_x509_stack(stack)
-
-    data_bio = BIO.MemoryBuffer(manifest_json)
+    data_bio = BIO.MemoryBuffer(bytes(manifest_json, encoding='utf8'))
 
     # PKCS7_NOVERIFY = do not verify the signers certificate of a signed message.
-    assert smime_obj.verify(
-        signature_p7, data_bio, flags=SMIME.PKCS7_NOVERIFY
-    ) == manifest_json
+    assert smime.verify(signature, data_bio, flags=SMIME.PKCS7_NOVERIFY) == bytes(manifest_json, encoding='utf8')
 
-    tampered_manifest = '{"pass.json": "foobar"}'
+    tampered_manifest = bytes('{"pass.json": "foobar"}', encoding='utf8')
     data_bio = BIO.MemoryBuffer(tampered_manifest)
     # Verification MUST fail!
     with pytest.raises(SMIME.PKCS7_Error):
-        smime_obj.verify(signature_p7, data_bio, flags=SMIME.PKCS7_NOVERIFY)
+        smime.verify(signature, data_bio, flags=SMIME.PKCS7_NOVERIFY)
 
 
-@pytest.mark.skipif(_certificates_mising(), reason='Certificates missing')
 def test_passbook_creation():
     """
     This test can only run locally if you provide your personal Apple Wallet
@@ -207,5 +196,5 @@ def test_passbook_creation():
         password = ''
 
     passfile = create_shell_pass()
-    passfile.addFile('icon.png', open(cwd / 'static/white_square.png', 'rb'))
+    passfile.addFile('icon.png', open(cwd / 'static' / 'white_square.png', 'rb'))
     passfile.create(certificate, key, wwdr_certificate, password)
