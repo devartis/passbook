@@ -87,7 +87,7 @@ class NumberField(Field):
         return self.__dict__
 
 
-class CurrencyField(NumberField):
+class CurrencyField(Field):
 
     def __init__(self, key, value, label='', currencyCode=''):
         super(CurrencyField, self).__init__(key, value, label)
