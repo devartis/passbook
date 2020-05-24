@@ -87,3 +87,7 @@ which you need to install first.
 ## Credits
 
 Developed by [devartis](http://www.devartis.com).
+
+## Contributors
+
+Martin Bächtold
