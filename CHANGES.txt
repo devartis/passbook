@@ -14,3 +14,5 @@ v1.0.0, 12/10/2012 -- Fixed barcode serialization and unicode paths.
 v1.0.1, 08/05/2015 -- Added new field values and validations
 
 v1.0.2, 07/25/2016 -- Add compatibility with iOS 9 (thanks @mbaechtold)
+
+v1.0.3, 12/14/2020 -- Switch crypto library from m2crypto to cryptography
