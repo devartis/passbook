@@ -7,7 +7,7 @@ from M2Crypto import SMIME
 from M2Crypto import X509
 from path import Path
 
-from passbook.models import Barcode, BarcodeFormat, Pass, StoreCard
+from passbook.models import Barcode, BarcodeFormat, CurrencyField, Pass, StoreCard
 
 cwd = Path(__file__).parent
 
@@ -198,3 +198,19 @@ def test_passbook_creation():
     passfile = create_shell_pass()
     passfile.addFile('icon.png', open(cwd / 'static' / 'white_square.png', 'rb'))
     passfile.create(certificate, key, wwdr_certificate, password)
+
+
+def test_currency_field_has_no_numberstyle():
+    balance_field = CurrencyField(
+        'balance',
+        float(22.00),
+        'test label',
+        'USD',
+    )
+
+    passfile = create_shell_pass()
+    passfile.passInformation.headerFields.append(balance_field)
+
+    pass_json = passfile.json_dict()
+    assert 'currencyCode' in pass_json['storeCard']['headerFields'][0]
+    assert 'numberStyle' not in pass_json['storeCard']['headerFields'][0]
