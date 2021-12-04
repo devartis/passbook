@@ -5,9 +5,9 @@ import json
 import zipfile
 from io import BytesIO
 
-from M2Crypto import SMIME
-from M2Crypto import X509
-from M2Crypto.X509 import X509_Stack
+from cryptography import x509
+from cryptography.hazmat.primitives import hashes, serialization
+from cryptography.hazmat.primitives.serialization import pkcs7
 
 
 class Alignment:
@@ -306,7 +306,8 @@ class Pass(object):
     def create(self, certificate, key, wwdr_certificate, password, zip_file=None):
         pass_json = self._createPassJson()
         manifest = self._createManifest(pass_json)
-        signature = self._createSignature(manifest, certificate, key, wwdr_certificate, password)
+        signature = self._createSignatureCrypto(manifest, certificate, key, wwdr_certificate, password)
+        # signature = self._createSignature(manifest, certificate, key, wwdr_certificate, password)
         if not zip_file:
             zip_file = BytesIO()
         self._createZip(pass_json, manifest, signature, zip_file=zip_file)
@@ -324,44 +325,72 @@ class Pass(object):
             self._hashes[filename] = hashlib.sha1(filedata).hexdigest()
         return json.dumps(self._hashes)
 
-    def _get_smime(self, certificate, key, wwdr_certificate, password):
+    # def _get_smime(self, certificate, key, wwdr_certificate, password):
+    #     """
+    #     :return: M2Crypto.SMIME.SMIME
+    #     """
+    #     def passwordCallback(*args, **kwds):
+    #         return bytes(password, encoding='ascii')
+
+    #     smime = SMIME.SMIME()
+
+    #     wwdrcert = X509.load_cert(wwdr_certificate)
+    #     stack = X509_Stack()
+    #     stack.push(wwdrcert)
+    #     smime.set_x509_stack(stack)
+
+    #     smime.load_key(key, certfile=certificate, callback=passwordCallback)
+    #     return smime
+
+    # def _sign_manifest(self, manifest, certificate, key, wwdr_certificate, password):
+    #     """
+    #     :return: M2Crypto.SMIME.PKCS7
+    #     """
+    #     smime = self._get_smime(certificate, key, wwdr_certificate, password)
+    #     pkcs7 = smime.sign(
+    #         SMIME.BIO.MemoryBuffer(bytes(manifest, encoding='utf8')),
+    #         flags=SMIME.PKCS7_DETACHED | SMIME.PKCS7_BINARY
+    #     )
+    #     return pkcs7
+
+    # def _createSignature(self, manifest, certificate, key,
+    #                      wwdr_certificate, password):
+    #     """
+    #     Creates a signature (DER encoded) of the manifest. The manifest is the file
+    #     containing a list of files included in the pass file (and their hashes).
+    #     """
+    #     pk7 = self._sign_manifest(manifest, certificate, key, wwdr_certificate, password)
+    #     der = SMIME.BIO.MemoryBuffer()
+    #     pk7.write_der(der)
+    #     return der.read()
+    
+    def _readFileBytes(self, path):
         """
-        :return: M2Crypto.SMIME.SMIME
+        Utility function to read files as byte data
+        :param path: file path
+        :returns bytes
         """
-        def passwordCallback(*args, **kwds):
-            return bytes(password, encoding='ascii')
+        file = open(path)
+        return file.read().encode('UTF-8')
 
-        smime = SMIME.SMIME()
-
-        wwdrcert = X509.load_cert(wwdr_certificate)
-        stack = X509_Stack()
-        stack.push(wwdrcert)
-        smime.set_x509_stack(stack)
-
-        smime.load_key(key, certfile=certificate, callback=passwordCallback)
-        return smime
-
-    def _sign_manifest(self, manifest, certificate, key, wwdr_certificate, password):
-        """
-        :return: M2Crypto.SMIME.PKCS7
-        """
-        smime = self._get_smime(certificate, key, wwdr_certificate, password)
-        pkcs7 = smime.sign(
-            SMIME.BIO.MemoryBuffer(bytes(manifest, encoding='utf8')),
-            flags=SMIME.PKCS7_DETACHED | SMIME.PKCS7_BINARY
-        )
-        return pkcs7
-
-    def _createSignature(self, manifest, certificate, key,
+    def _createSignatureCrypto(self, manifest, certificate, key,
                          wwdr_certificate, password):
         """
-        Creates a signature (DER encoded) of the manifest. The manifest is the file
+        Creates a signature (DER encoded) of the manifest.
+        Rewritten to use cryptography library instead of M2Crypto 
+        The manifest is the file
         containing a list of files included in the pass file (and their hashes).
         """
-        pk7 = self._sign_manifest(manifest, certificate, key, wwdr_certificate, password)
-        der = SMIME.BIO.MemoryBuffer()
-        pk7.write_der(der)
-        return der.read()
+        cert = x509.load_pem_x509_certificate(self._readFileBytes(certificate))
+        priv_key = serialization.load_pem_private_key(self._readFileBytes(key), password=password.encode('UTF-8'))
+        wwdr_cert = x509.load_pem_x509_certificate(self._readFileBytes(wwdr_certificate))
+        
+        options = [pkcs7.PKCS7Options.DetachedSignature]
+        return pkcs7.PKCS7SignatureBuilder()\
+                .set_data(manifest.encode('UTF-8'))\
+                .add_signer(cert, priv_key, hashes.SHA1())\
+                .add_certificate(wwdr_cert)\
+                .sign(serialization.Encoding.DER, options)
 
     # Creates .pkpass (zip archive)
     def _createZip(self, pass_json, manifest, signature, zip_file=None):
