@@ -47,31 +47,33 @@ You will be asked for an export password (or export phrase). In this example it 
 
 ## Typical Usage
 
-    #!/usr/bin/env python
+```python
+#!/usr/bin/env python
 
-    from passbook.models import Pass, Barcode, StoreCard
+from passbook.models import Pass, Barcode, StoreCard
 
-    cardInfo = StoreCard()
-    cardInfo.addPrimaryField('name', 'John Doe', 'Name')
+cardInfo = StoreCard()
+cardInfo.addPrimaryField('name', 'John Doe', 'Name')
 
-    organizationName = 'Your organization' 
-    passTypeIdentifier = 'pass.com.your.organization' 
-    teamIdentifier = 'AGK5BZEN3E'
-    
-    passfile = Pass(cardInfo, \
-        passTypeIdentifier=passTypeIdentifier, \
-        organizationName=organizationName, \
-        teamIdentifier=teamIdentifier)
-    passfile.serialNumber = '1234567' 
-    passfile.barcode = Barcode(message = 'Barcode message')    
+organizationName = 'Your organization' 
+passTypeIdentifier = 'pass.com.your.organization' 
+teamIdentifier = 'AGK5BZEN3E'
 
-    # Including the icon and logo is necessary for the passbook to be valid.
-    passfile.addFile('icon.png', open('images/icon.png', 'rb'))
-    passfile.addFile('logo.png', open('images/logo.png', 'rb'))
-    
-    # Create and output the Passbook file (.pkpass)
-    password = '123456'
-    passfile.create('certificate.pem', 'private.key', 'wwdr.pem', password , 'test.pkpass')
+passfile = Pass(cardInfo, \
+    passTypeIdentifier=passTypeIdentifier, \
+    organizationName=organizationName, \
+    teamIdentifier=teamIdentifier)
+passfile.serialNumber = '1234567' 
+passfile.barcode = Barcode(message = 'Barcode message')    
+
+# Including the icon and logo is necessary for the passbook to be valid.
+passfile.addFile('icon.png', open('images/icon.png', 'rb'))
+passfile.addFile('logo.png', open('images/logo.png', 'rb'))
+
+# Create and output the Passbook file (.pkpass)
+password = '123456'
+passfile.create('certificate.pem', 'private.key', 'wwdr.pem', password , 'test.pkpass')
+```
 
 ## Note: Getting WWDR Certificate
 
