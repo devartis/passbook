@@ -18,6 +18,9 @@ setup(
     install_requires=[
         'M2Crypto >= 0.28.2',
     ],
+    extras_require={
+        ':python_version>="3.10"': ['swig'],
+    },
 
     classifiers=[
         'Development Status :: 3 - Alpha',
