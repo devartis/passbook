@@ -2,3 +2,4 @@ M2Crypto
 path.py
 pytest
 tox-travis
+swig
