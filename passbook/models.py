@@ -405,7 +405,7 @@ class Pass(object):
         if self.logoText:
             d.update({'logoText': self.logoText})
         if self.locations:
-            d.update({'locations': self.locations})
+            d['locations'] = self.locations
         if self.ibeacons:
             d.update({'beacons': self.ibeacons})
         if self.userInfo:
