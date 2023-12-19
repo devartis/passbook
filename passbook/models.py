@@ -235,7 +235,11 @@ class StoreCard(PassInformation):
 class Pass(object):
 
     def __init__(self, passInformation, json='', passTypeIdentifier='',
-                 organizationName='', teamIdentifier=''):
+                 organizationName='', teamIdentifier='',
+                 nfc_message=None,
+                 encryption_public_key=None,
+                 sharingProhibited=None,
+                 requiresAuthentication=False):
 
         self._files = {}  # Holds the files to include in the .pkpass
         self._hashes = {}  # Holds the SHAs of the files array
@@ -297,6 +301,17 @@ class Pass(object):
         self.voided = None
 
         self.passInformation = passInformation
+
+        # Create an NFC pass
+        self.nfc_message = nfc_message
+        #  Public encryption key
+        self.encryption_public_key = encryption_public_key
+
+        # This one prevents users from sharing passes with older iOS versions and bypassing the authentication requirement.
+        self.sharingProhibited = sharingProhibited
+
+        # It's a Boolean value that indicates whether the NFC pass requires authentication.
+        self.requiresAuthentication = requiresAuthentication
 
     # Adds file to the file array
     def addFile(self, name, fd):
@@ -423,6 +438,15 @@ class Pass(object):
         if self.webServiceURL:
             d.update({'webServiceURL': self.webServiceURL,
                       'authenticationToken': self.authenticationToken})
+        if self.nfc_message:
+            d['nfc'] = {
+                'message': self.nfc_message,
+                "encryptionPublicKey": self.encryption_public_key,
+                "requiresAuthentication": self.requiresAuthentication
+            }
+        if self.sharingProhibited:
+            d.update({"sharingProhibited": self.sharingProhibited})
+
         return d
 
 
